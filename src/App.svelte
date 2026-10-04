@@ -294,7 +294,7 @@
             </div>
             {#if compare}<div class="reference-wrap">
                 <img
-                  src={`/references/${style === 'rat' ? 'ratking' : style === 'harrow' ? 'nurse' : 'baba'}-wordmark.svg`}
+                  src={`${import.meta.env.BASE_URL}references/${style === 'rat' ? 'ratking' : style === 'harrow' ? 'nurse' : 'baba'}-wordmark.svg`}
                   alt={`${pack.name} source wordmark`}
                 /><span class="image-label">SOURCE WORDMARK</span>
               </div>{/if}

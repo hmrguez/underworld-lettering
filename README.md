@@ -39,6 +39,26 @@ bun run build   # Static production build in dist/
 
 The production output can be hosted by any static web server. Rendering runs entirely in the browser. Interface fonts currently load from Google Fonts; the lettering engine does not make network requests.
 
+## Deploy with GitHub Actions
+
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) runs on every push to `main`, or manually from the Actions tab on `main`:
+
+1. Set up the pinned Bun version and install with `bun install --frozen-lockfile`.
+2. Run `bun run check` (formatting, types, lint), then `bun test`.
+3. Build the app for the GitHub Pages base path and upload `dist/`.
+4. Deploy to GitHub Pages only after all earlier steps pass.
+
+In the repository's **Settings → Pages → Build and deployment**, select **GitHub Actions** as the source. Commit the workflow and app changes, then push to `main`. In **Actions → Check and deploy**, verify that both jobs succeed; the deployment job links to the published site. The default URL is [hmrguez.github.io/underworld-lettering/](https://hmrguez.github.io/underworld-lettering/).
+
+The workflow uses GitHub's automatic token; no deployment secret is required. Reference artwork uses Vite's base URL so it also loads from the repository subpath. To verify that build locally:
+
+```sh
+bun run build -- --base /underworld-lettering/
+bun --bun vite preview --host 127.0.0.1 --base /underworld-lettering/
+```
+
+Open the preview URL with `/underworld-lettering/` appended and enable Reference comparison to check artwork loading.
+
 ## Letter-level syntax
 
 Type plain text or attach settings immediately after a letter:
