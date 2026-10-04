@@ -60,7 +60,8 @@ Supported keys:
 - `dot`: `auto`, `crown`, `star`, `off`.
 - `variant`: `auto`, `base`, `alt`.
 - `ornament`: `auto`, `on`, `off`.
-- `initial`: `auto`, `on`, `off` (Venator V; Celeste contextual capitals).
+- `initial`: `auto`, `on`, `off` (Venator V; Celeste/Violet contextual capitals; Paige enlarged initials).
+- `frame`: `auto`, `on`, `off` (Paige independent initial frame).
 - `plate`, `rook`: `auto`, `on`, `off` (Solomon).
 
 Comma-separated settings may share brackets. Global/automatic behavior is used when a setting is `auto`. The selected UI override is consulted before the inline modifier. UI overrides are keyed by glyph index and cleared when text changes.
@@ -69,7 +70,7 @@ Comma-separated settings may share brackets. Global/automatic behavior is used w
 
 `render(ast, options)` returns `{ svg, width, height, hits, applied, inferred, empty }`.
 
-Options include `hourglasses`, `bubbles`, `plates`, `platePhase` (`even` by default, or `odd`), `rook`, `style`, `crown`, `swash`, `ornaments`, `texture`, `irregular`, `tracking`, `swashLength`, `color`, and `overrides`. Style IDs are `rat`, `harrow`, `baba`, `solomon`, `venator`, `celeste`, `violet`, `graves`, `viscous`, and `paradox`.
+Options include `initial`, `frame`, `hourglasses`, `bubbles`, `plates`, `platePhase` (`even` by default, or `odd`), `rook`, `style`, `crown`, `swash`, `ornaments`, `texture`, `irregular`, `tracking`, `swashLength`, `color`, and `overrides`. Style IDs are `rat`, `harrow`, `baba`, `solomon`, `venator`, `celeste`, `violet`, `graves`, `viscous`, `paradox`, and `paige`.
 
 - `svg` is a complete inline SVG string.
 - `hits` contains selection metadata and reference/inferred status.
@@ -173,3 +174,13 @@ Native pair gaps reproduce VISCOUS source positions; arbitrary gaps default to 1
 Automatic counters apply to A/O and inferred Q/zero only. Solid source P/R/D and inferred B/6/8/9 receive counters only when explicitly requested. Native A/O counters are unchanged. Other eligible counters remap the source O template, scale it for short P/R/6/9 bowls and validate sampled contour points with an eight-unit ink halo during extraction. Narrow/open glyphs do not support counters and have no counter dropdown. All cuts subtract through namespaced luminance masks; disabling counters restores the solid envelope without canvas paint.
 
 Native pair bearings preserve PARADOX positions, including P's overhanging shoulder and tucked A foot. Other pairs use a 20-unit bounds gap. Dense sampled side profiles enforce six units of horizontal ink clearance at tight tracking; word boundaries add 80 units. Hit rectangles partition adjacent ink centers and remain disjoint despite overlapping outline bounds. Exact bounds, selection regions and margins define the viewBox. No full wordmark, font or external asset is embedded in live rendering or export.
+
+## Paige
+
+`paige.ts` dispatches through the shared engine with style ID `paige`. `initial` and `frame` default true and independently select the first alphabetic glyph of the whole name. Digits/punctuation cannot acquire either treatment. Local `initial`/`frame` settings can force or suppress either on any alphabetic glyph. Interface > inline > automatic/global precedence includes explicit interface auto bypassing inline values; text edits clear interface overrides.
+
+`paige-paths.json` separates native P/a/i/g/e contours, i dot, custom inferred forms, enlarged initial forms, pair gaps, sampled profiles and the frame polygon. Extraction preserves source commands and vertical placement; runtime transforms normalize x. P is evidenced only in its enlarged form; compact p is inferred. Other initial treatments scale their own shapes to the source P height and are disclosed as inferred treatments. Unseen glyphs use explicit angular geometry, broad stems, faceted bowls, oblique counters and folded feet, without Venator geometry or a fallback font. Separate components union overlapping strokes; compound source counters use even-odd filling.
+
+PA/AI/IG/GE gaps preserve the preset's native positions and intentional foot contacts. Tight tracking cannot tighten those contacts further; arbitrary pairs use 120 sampled nine-unit horizontal bands with six units of clearance. Word gaps add 100 units. Interior framed letters reserve the outer frame bearings. Selection rectangles partition adjacent ink centers; bounds include complete outlines and frames with 22 units of margin.
+
+Each frame is a separate path fitted around its glyph, independently of initial enlargement. Neighbors entering the right-arm region expand its opening above dots and below descenders, including forced initials. Top/bottom ink bands and left/right border widths retain native thickness; only arm lengths and middle spans stretch. Compact frames enforce a 65-unit minimum arm span. The complete source e outline is retained rather than reproducing its tiny reference clip. SVG preview/export contains deterministic filled outlines, with no font, embedded reference image or background paint.

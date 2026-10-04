@@ -5,6 +5,7 @@
   import type { StyleId } from './lib/engine.ts';
   let style = $state<StyleId>('rat'),
     source = $state('RAT KING'),
+    frame = $state(true),
     hourglasses = $state(true),
     bubbles = $state(true),
     fractures = $state(true),
@@ -33,6 +34,7 @@
   let result = $derived(
     render(ast, {
       style,
+      frame,
       hourglasses,
       bubbles,
       fractures,
@@ -65,6 +67,7 @@
     swashLength = 1;
     texture = false;
     irregular = true;
+    frame = true;
     hourglasses = true;
     bubbles = true;
     fractures = true;
@@ -223,6 +226,22 @@
               >Crossing R flourish <small>Reaches into the lower line</small
               ></span
             ><input type="checkbox" bind:checked={swash} /><span class="switch"
+            ></span></label
+          >
+        {:else if style === 'paige'}
+          <label class="toggle"
+            ><span
+              >Enlarged initial <small>First letter of the name</small></span
+            ><input type="checkbox" bind:checked={initial} /><span
+              class="switch"
+            ></span></label
+          >
+          <label class="toggle"
+            ><span
+              >Open initial frame <small
+                >Independent border with room for adjacent letters</small
+              ></span
+            ><input type="checkbox" bind:checked={frame} /><span class="switch"
             ></span></label
           >
         {:else if style === 'paradox'}
@@ -451,7 +470,7 @@
             </div>
             {#if compare}<div class="reference-wrap">
                 <img
-                  src={`${import.meta.env.BASE_URL}references/${style === 'paradox' ? 'paradox' : style === 'viscous' ? 'viscous' : style === 'rat' ? 'ratking' : style === 'harrow' ? 'nurse' : style === 'solomon' ? 'solomon' : style === 'venator' ? 'venator' : style === 'celeste' ? 'celeste' : style === 'graves' ? 'graves' : style === 'violet' ? 'violet' : 'baba'}-wordmark.svg`}
+                  src={`${import.meta.env.BASE_URL}references/${style === 'paige' ? 'paige' : style === 'paradox' ? 'paradox' : style === 'viscous' ? 'viscous' : style === 'rat' ? 'ratking' : style === 'harrow' ? 'nurse' : style === 'solomon' ? 'solomon' : style === 'venator' ? 'venator' : style === 'celeste' ? 'celeste' : style === 'graves' ? 'graves' : style === 'violet' ? 'violet' : 'baba'}-wordmark.svg`}
                   alt={`${pack.name} source wordmark`}
                 /><span class="image-label">SOURCE WORDMARK</span>
               </div>{/if}
@@ -486,7 +505,7 @@
             <h2>{selectedGlyph.char} <span>Local overrides</span></h2>
           </div>
           <div class="override-fields">
-            {#if selectedGlyph.char === 'R' && style !== 'solomon' && style !== 'venator' && style !== 'celeste' && style !== 'violet' && style !== 'graves' && style !== 'viscous' && style !== 'paradox'}<label
+            {#if selectedGlyph.char === 'R' && style !== 'solomon' && style !== 'venator' && style !== 'celeste' && style !== 'violet' && style !== 'graves' && style !== 'viscous' && style !== 'paradox' && style !== 'paige'}<label
                 >Swash<select
                   value={overrides[selectedGlyph.id]?.swash ??
                     selectedGlyph.modifiers.swash ??
@@ -497,7 +516,7 @@
                   ><option value="off">Off</option></select
                 ></label
               >{/if}
-            {#if selectedGlyph.char === 'I' && style !== 'solomon' && style !== 'venator' && style !== 'celeste' && style !== 'violet' && style !== 'graves' && style !== 'viscous' && style !== 'paradox'}<label
+            {#if selectedGlyph.char === 'I' && style !== 'solomon' && style !== 'venator' && style !== 'celeste' && style !== 'violet' && style !== 'graves' && style !== 'viscous' && style !== 'paradox' && style !== 'paige'}<label
                 >Dot<select
                   value={overrides[selectedGlyph.id]?.dot ??
                     selectedGlyph.modifiers.dot ??
@@ -510,6 +529,24 @@
                   ></select
                 ></label
               >{/if}
+            {#if style === 'paige' && /^[A-Z]$/.test(selectedGlyph.char)}
+              {#each ['initial', 'frame'] as key (key)}
+                <label
+                  >{key === 'initial'
+                    ? 'Enlarged initial'
+                    : 'Open frame'}<select
+                    value={overrides[selectedGlyph.id]?.[key as ModifierKey] ??
+                      selectedGlyph.modifiers[key as ModifierKey] ??
+                      'auto'}
+                    onchange={(e) =>
+                      override(key as ModifierKey, e.currentTarget.value)}
+                    ><option value="auto">Automatic</option><option value="on"
+                      >On</option
+                    ><option value="off">Off</option></select
+                  ></label
+                >
+              {/each}
+            {/if}
             {#if style === 'paradox' && 'ABDPORQ0689'.includes(selectedGlyph.char)}<label
                 >Hourglass counter<select
                   value={overrides[selectedGlyph.id]?.counter ??
@@ -639,7 +676,7 @@
                 >
               {/each}
             {/if}
-            {#if (style !== 'solomon' && style !== 'venator' && style !== 'celeste' && style !== 'violet' && style !== 'graves' && style !== 'viscous' && style !== 'paradox') || (style === 'paradox' && selectedGlyph.char === 'A') || (style === 'viscous' && (selectedGlyph.char === 'S' || (/^[A-Z]$/.test(selectedGlyph.char) && !'VICOUQ'.includes(selectedGlyph.char)))) || (style === 'solomon' && selectedGlyph.char === 'O') || (style === 'venator' && (selectedGlyph.char === 'V' || (/^[A-Z]$/.test(selectedGlyph.char) && !'ENATOR'.includes(selectedGlyph.char))))}
+            {#if (style !== 'solomon' && style !== 'venator' && style !== 'celeste' && style !== 'violet' && style !== 'graves' && style !== 'viscous' && style !== 'paradox' && style !== 'paige') || (style === 'paradox' && selectedGlyph.char === 'A') || (style === 'viscous' && (selectedGlyph.char === 'S' || (/^[A-Z]$/.test(selectedGlyph.char) && !'VICOUQ'.includes(selectedGlyph.char)))) || (style === 'solomon' && selectedGlyph.char === 'O') || (style === 'venator' && (selectedGlyph.char === 'V' || (/^[A-Z]$/.test(selectedGlyph.char) && !'ENATOR'.includes(selectedGlyph.char))))}
               <label
                 >Letter variant<select
                   value={overrides[selectedGlyph.id]?.variant ??
@@ -665,7 +702,7 @@
       {:else}
         <div class="try-strip">
           <span>TRY A NAME</span
-          >{#each style === 'paradox' ? ['PARADOX', 'HOURGLASS', 'TIME LOOP'] : style === 'viscous' ? ['VISCOUS', 'GUTTER', 'BUBBLE'] : style === 'rat' ? examples : style === 'harrow' ? ['NURSE HARROW', 'SISTER RAVEN', 'NIGHT WATCH'] : style === 'graves' ? ['GRAVES', 'GRAVEYARD', 'IRON WITCH'] : style === 'violet' ? ['VIOLET', 'VIVID', 'PAINT THE NIGHT'] : style === 'celeste' ? ['CELESTE', 'STAR LIGHT', 'MOON'] : style === 'venator' ? ['VENATOR', 'VIVID', 'NIGHT SHIFT'] : style === 'solomon' ? ['SOLOMON', 'IRON WITCH', 'RED MOON'] : ['BABA', 'BLACK BIRD', 'BONE'] as ex (ex)}<button
+          >{#each style === 'paige' ? ['PAIGE', 'RAVEN', 'BLACK THORN'] : style === 'paradox' ? ['PARADOX', 'HOURGLASS', 'TIME LOOP'] : style === 'viscous' ? ['VISCOUS', 'GUTTER', 'BUBBLE'] : style === 'rat' ? examples : style === 'harrow' ? ['NURSE HARROW', 'SISTER RAVEN', 'NIGHT WATCH'] : style === 'graves' ? ['GRAVES', 'GRAVEYARD', 'IRON WITCH'] : style === 'violet' ? ['VIOLET', 'VIVID', 'PAINT THE NIGHT'] : style === 'celeste' ? ['CELESTE', 'STAR LIGHT', 'MOON'] : style === 'venator' ? ['VENATOR', 'VIVID', 'NIGHT SHIFT'] : style === 'solomon' ? ['SOLOMON', 'IRON WITCH', 'RED MOON'] : ['BABA', 'BLACK BIRD', 'BONE'] as ex (ex)}<button
               onclick={() => {
                 source = ex;
                 overrides = {};
@@ -686,6 +723,14 @@
             designs, not traced reference letters.
           </p>{:else if !result.empty}<p class="fidelity">
             All letters in this name use reference-derived outlines.
+          </p>{/if}
+        {#if style === 'paige'}<p class="fidelity">
+            Oversized P and body a, i (including its dot), g and e retain source
+            contours. Compact p, all unseen letters, digits and punctuation are
+            custom inferred angular blackletter. Other enlarged initials and
+            adaptive frame placement are inferred composition rules; the border
+            is independent of the letter. These are not exact reconstructions of
+            Valve's unseen alphabet.
           </p>{/if}
         {#if style === 'paradox'}<p class="fidelity">
             P, A (two forms), R, D, O and X retain source contours. Only A and O
@@ -728,6 +773,7 @@
             >. Local settings take priority over global toggles.
           </p>
           <p>
+            <code>frame=on|off|auto</code> (Paige) ·
             <code>counter=on|off|auto</code> (Paradox) ·
             <code>bubble=on|off|auto</code> (Viscous) ·
             <code>fracture=on|off|auto</code> (Graves) ·

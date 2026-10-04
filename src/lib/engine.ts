@@ -15,7 +15,9 @@ export type StyleId =
   | 'violet'
   | 'graves'
   | 'viscous'
-  | 'paradox';
+  | 'paradox'
+  | 'paige';
+import { renderPaige } from './paige.ts';
 import { renderParadox } from './paradox.ts';
 import { renderViscous } from './viscous.ts';
 import { renderGraves } from './graves.ts';
@@ -58,6 +60,7 @@ interface LayoutItem {
 }
 export interface RenderOptions {
   style: StyleId;
+  frame: boolean;
   hourglasses: boolean;
   bubbles: boolean;
   fractures: boolean;
@@ -185,6 +188,14 @@ export const styles: Style[] = [
     number: '10',
     description: 'Massive capitals · hourglass counters',
     accent: '#bd9aab',
+  },
+  {
+    id: 'paige',
+    name: 'Paige',
+    sample: 'PAIGE',
+    number: '11',
+    description: 'Dense angular blackletter · open initial frame',
+    accent: '#bba789',
   },
 ];
 function sourceGlyph(
@@ -341,6 +352,7 @@ export function render(
 ): RenderResult {
   const o: RenderOptions = {
     style: 'rat',
+    frame: true,
     hourglasses: true,
     bubbles: true,
     fractures: true,
@@ -370,6 +382,7 @@ export function render(
     hash = Math.imul(hash ^ ch.charCodeAt(0), 16777619) >>> 0;
   }
   const namespace = `lettering-${hash.toString(16)}`;
+  if (o.style === 'paige') return renderPaige(ast, o, color);
   if (o.style === 'paradox') return renderParadox(ast, o, namespace, color);
   if (o.style === 'viscous') return renderViscous(ast, o, namespace, color);
   if (o.style === 'graves') return renderGraves(ast, o, namespace, color);

@@ -1,4 +1,5 @@
 export interface ModifierValues {
+  frame: 'auto' | 'on' | 'off';
   counter: 'auto' | 'on' | 'off';
   bubble: 'auto' | 'on' | 'off';
   fracture: 'auto' | 'on' | 'off';
@@ -54,6 +55,7 @@ function applyModifier<K extends ModifierKey>(
   return true;
 }
 export const MODIFIERS = {
+  frame: ['auto', 'on', 'off'],
   counter: ['auto', 'on', 'off'],
   bubble: ['auto', 'on', 'off'],
   fracture: ['auto', 'on', 'off'],

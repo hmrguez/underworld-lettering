@@ -10,7 +10,7 @@ Built with **Svelte 5**, **Vite**, **TypeScript 7**, and **Bun**, with a small l
 
 ## Features
 
-- Ten distinct lettering packs: **Rat King**, **Nurse Harrow**, **Baba**, **Solomon**, **Venator**, **Celeste**, **Violet**, **Graves**, **Viscous**, and **Paradox**.
+- Eleven distinct lettering packs: **Rat King**, **Nurse Harrow**, **Baba**, **Solomon**, **Venator**, **Celeste**, **Violet**, **Graves**, **Viscous**, **Paradox**, and **Paige**.
 - Instant previews for names of up to 24 letters or digits.
 - An R leg that adapts to the width of its word.
 - Crowns, decorative I dots, alternate letters, uneven heights, spacing, and ink controls.
@@ -77,6 +77,9 @@ G[fracture=off]RAV[fracture=on]ES
 VISCO[bubble=off]US
 B[bubble=on]UBBLE
 S[variant=alt]OFT
+P[initial=off]AIGE
+P[frame=off]AIGE
+R[initial=on,frame=on]AVEN
 ```
 
 | Setting    | Values                         |
@@ -87,6 +90,7 @@ S[variant=alt]OFT
 | `ornament` | `auto`, `on`, `off`            |
 | `plate`    | `auto`, `on`, `off`            |
 | `initial`  | `auto`, `on`, `off`            |
+| `frame`    | `auto`, `on`, `off` (Paige)    |
 | `bubble`   | `auto`, `on`, `off` (Viscous)  |
 | `fracture` | `auto`, `on`, `off` (Graves)   |
 | `rook`     | `auto`, `on`, `off`            |
@@ -95,7 +99,7 @@ Multiple settings can share a bracket, separated by commas. Settings apply when 
 
 Input supports A–Z, digits, spaces, hyphens, and apostrophes. Lowercase is normalized to uppercase. Invalid syntax produces a diagnostic while valid letters continue to render.
 
-## Nine hands
+## Eleven hands
 
 ### Rat King
 
@@ -169,6 +173,7 @@ SVG → instant preview / export
 - `src/lib/paradox.ts`, `src/lib/paradox-paths.json` and `scripts/extract-paradox.py`: source geometric capitals, custom inferred outlines, contextual A forms and selective transparent counters.
 - `src/lib/viscous.ts`, `src/lib/viscous-paths.json` and `scripts/extract-viscous.py`: extracted soft source forms, custom inferred outlines and fitted transparent bubble holes.
 - `src/lib/graves.ts`, `src/lib/graves-paths.json` and `scripts/extract-graves.py`: reference fragments, reconstructed intact envelopes, inferred heavy serifs and ink-fitted fractures.
+- `src/lib/paige.ts`, `src/lib/paige-paths.json` and `scripts/extract-paige.py`: source blackletter outlines, a custom inferred alphabet, contextual initials and an independent adaptive frame.
 - `src/lib/fallback-paths.json`: precomputed fallback font outlines.
 - `scripts/design-rat-glyphs.cjs`: regenerates the inferred Rat King capitals.
 - `src/App.svelte`: editor, preview, settings, and export.
@@ -216,11 +221,23 @@ All other capitals, digits, punctuation and counters outside A/O are custom infe
 
 ![Paradox composed from editable geometric capitals with native hourglass counters](docs/screenshots/paradox.png)
 
+### Paige
+
+Dense angular blackletter with broad stems, oblique counters, folded terminals and an oversized P inside a partial rectangular frame. P and lowercase-form a/i/g/e retain extracted reference contours, including the angled i dot and descending g. All other letters, digits, punctuation and compact p are custom inferred geometry. This hand has its own proportions and outlines, distinct from Venator; no blackletter font was substituted.
+
+**Enlarged initial** and **Open initial frame** are independent switches. Both automatically apply to the first alphabetic letter of the name, skipping digits and punctuation. Other initials enlarge their own shapes with an explicitly inferred treatment. Per-letter `initial=auto|on|off` and `frame=auto|on|off` can force or suppress either treatment anywhere. Interface overrides win over inline settings, including explicit Automatic; editing text clears them.
+
+The frame adapts to the selected glyph and opens around neighboring dots, descenders and forced initials while preserving border thickness. Source pairs retain their native folded-foot contacts; arbitrary pairs protect sampled ink clearance. Arbitrary-name spacing and frame adaptation are interpretations, not a recovered complete alphabet. Exported glyphs and the independent frame are filled SVG outlines with transparent counters.
+
+![Paige composed from editable blackletter outlines with an independent open initial frame](docs/screenshots/paige.png)
+
 ## Scope and fidelity
 
 This is a personal v1 experiment, not a complete reconstructed font family. Original hero names are close to the references. Letters absent from those references are inferred, and the interface labels them. Spacing and some ornament placement are reconstructed. There is no manual Bézier editor, font uploader, or OpenType font export.
 
 ## References and attribution
+
+- Paige artwork: **Valve**, [isolated bookworm wordmark](https://deadlockskins.gg/hero-wordmarks/bookworm.svg) linked from [DeadlockSkins.gg’s Paige page](https://deadlockskins.gg/heroes/paige). Actual vector contents were visually inspected; the asset spells Paige. See [visual verification](docs/VISUAL-VERIFICATION.md) for extraction, inferred forms and export evidence.
 
 - Paradox artwork: **Valve**, [isolated chrono wordmark](https://deadlockskins.gg/hero-wordmarks/chrono.svg) linked from [DeadlockSkins.gg’s Paradox page](https://deadlockskins.gg/heroes/paradox). Actual vector contents were inspected; the asset spells PARADOX. See [visual verification](docs/VISUAL-VERIFICATION.md) for extraction, inference and export evidence.
 
