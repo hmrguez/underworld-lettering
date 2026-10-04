@@ -4,7 +4,7 @@ An experimental typography workshop for industrial, punk, underground wordmarks.
 
 Built with **Svelte 5**, **Vite**, and a small lexer/parser and vector layout engine. Inspired by the individual hero wordmarks in Valve’s *Deadlock*.
 
-![Rat King lettering workshop](docs/screenshots/rat-king.jpg)
+![Underworld lettering editor with Rat King live preview](docs/screenshots/workshop.png)
 
 ## Features
 
@@ -64,19 +64,19 @@ Input supports A–Z, digits, spaces, hyphens, and apostrophes. Lowercase is nor
 
 Angular brushwork, fractured edges, an adaptive R swash, and a crown. R, A, T, K, I, N, and G use reference-derived vector outlines. Other capitals use inferred brush designs; digits and punctuation use fallback outlines.
 
-![Rat King reference comparison](docs/screenshots/rat-king-comparison.jpg)
+![Close-up of Rat King lettering with an adaptive R swash and crown](docs/screenshots/rat-king.png)
 
 ### Nurse Harrow
 
 Tall, high-contrast serifs, two-line compositions for multiple words, and an R flourish crossing into the lower line. N, U, R, S, E, H, A, O, and W come from the reference; missing glyphs use Cormorant Garamond outlines.
 
-![Nurse Harrow workshop](docs/screenshots/nurse-harrow.jpg)
+![Close-up of Nurse Harrow lettering with its crossing R flourish](docs/screenshots/nurse-harrow.png)
 
 ### Baba
 
 Decorated slab letters, folk ornaments, and alternate A/B shapes. A and B use reference-derived outlines. Other glyphs use Rye outlines with additional decorative treatment.
 
-![Baba workshop](docs/screenshots/baba.jpg)
+![Close-up of Baba lettering with folk ornaments](docs/screenshots/baba.png)
 
 ## How it works
 
