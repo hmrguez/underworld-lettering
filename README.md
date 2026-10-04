@@ -2,7 +2,7 @@
 
 An experimental typography workshop for industrial, punk, underground wordmarks. Type a short name, choose a hand, and see an SVG composition update instantly.
 
-Built with **Svelte 5**, **Vite**, and a small lexer/parser and vector layout engine. Inspired by the individual hero wordmarks in Valve’s *Deadlock*.
+Built with **Svelte 5**, **Vite**, **TypeScript 7**, and **Bun**, with a small lexer/parser and vector layout engine. Inspired by the individual hero wordmarks in Valve’s *Deadlock*.
 
 ![Underworld lettering editor with Rat King live preview](docs/screenshots/workshop.png)
 
@@ -19,19 +19,19 @@ Built with **Svelte 5**, **Vite**, and a small lexer/parser and vector layout en
 
 ## Run locally
 
-Requires Node.js **20.19+ or 22.12+** and npm.
+Requires **Bun 1.4.2** (pinned in `.bun-version` and `package.json`). Install it from [bun.sh](https://bun.sh/).
 
 ```sh
-npm ci
-npm run dev
+bun install --frozen-lockfile
+bun run dev
 ```
 
-Open the local URL printed by Vite.
+Open the local URL printed by Vite. `bun.lock` pins dependencies. TypeScript 7.0.2 is installed as `@typescript/native`; Svelte diagnostics also require the TypeScript 6.0.3 compatibility API. `bun run check` uses TypeScript 7 for both Svelte and standalone TypeScript checks.
 
 ```sh
-npm run check   # Svelte diagnostics
-npm test        # Parser, layout rules, and override precedence
-npm run build   # Static production build in dist/
+bun run check   # Svelte diagnostics
+bun test        # Parser, layout rules, and override precedence
+bun run build   # Static production build in dist/
 ```
 
 The production output can be hosted by any static web server. Rendering runs entirely in the browser. Interface fonts currently load from Google Fonts; the lettering engine does not make network requests.
@@ -94,14 +94,14 @@ layout + contextual rules → flourishes and ornaments
 SVG → instant preview / export
 ```
 
-- `src/lib/parser.js`: lexer, parser, validation, and modifiers.
-- `src/lib/engine.js`: style selection, layout, contextual flourishes, and SVG generation.
+- `src/lib/parser.ts`: lexer, parser, validation, and modifiers.
+- `src/lib/engine.ts`: style selection, layout, contextual flourishes, and SVG generation.
 - `src/lib/reference-paths.json`: extracted reference paths.
 - `src/lib/inferred-rat-paths.json`: inferred angular brush capitals.
 - `src/lib/fallback-paths.json`: precomputed fallback font outlines.
 - `scripts/design-rat-glyphs.cjs`: regenerates the inferred Rat King capitals.
 - `src/App.svelte`: editor, preview, settings, and export.
-- `tests/engine.test.js`: parsing and rendering behavior checks.
+- `tests/engine.test.ts`: parsing and rendering behavior checks.
 
 The renderer composes glyph geometry rather than swapping in a finished name image. Flourishes respond to the surrounding word; the same engine renders presets and arbitrary input.
 

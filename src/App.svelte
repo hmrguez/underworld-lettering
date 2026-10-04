@@ -1,16 +1,18 @@
-<script>
-  import { parse, MODIFIERS } from './lib/parser.js';
-  import { render, styles } from './lib/engine.js';
-  let style=$state('rat'), source=$state('RAT KING'), crown=$state(true), swash=$state(true), ornaments=$state(true), texture=$state(false), irregular=$state(true), tracking=$state(0), swashLength=$state(1), color=$state('#eee6d1'), overrides=$state({}), selected=$state(null), guides=$state(false), compare=$state(false), advanced=$state(false), notice=$state('');
+<script lang="ts">
+  import { parse, MODIFIERS } from './lib/parser.ts';
+  import { render, styles } from './lib/engine.ts';
+  import type { ModifierKey, ModifierValues, Overrides } from './lib/parser.ts';
+  import type { StyleId } from './lib/engine.ts';
+  let style=$state<StyleId>('rat'), source=$state('RAT KING'), crown=$state(true), swash=$state(true), ornaments=$state(true), texture=$state(false), irregular=$state(true), tracking=$state(0), swashLength=$state(1), color=$state('#eee6d1'), overrides=$state<Overrides>({}), selected=$state<number | null>(null), guides=$state(false), compare=$state(false), advanced=$state(false), notice=$state('');
   let ast=$derived(parse(source));
   let result=$derived(render(ast,{style,crown,swash,ornaments,texture,irregular,tracking,swashLength,color,overrides}));
-  let pack=$derived(styles.find(s=>s.id===style));
+  let pack=$derived(styles.find(s=>s.id===style)!);
   let selectedGlyph=$derived(ast.glyphs.find(g=>g.id===selected));
-  function switchStyle(id){style=id;source=styles.find(s=>s.id===id).sample;overrides={};selected=null;tracking=0;swashLength=1;texture=false;irregular=true;crown=true;swash=true;ornaments=true;}
-  function edit(event){source=event.currentTarget.value;overrides={};selected=null;notice='';}
-  function select(event){const g=event.target.closest?.('[data-glyph]');if(g)selected=Number(g.dataset.glyph);}
-  function selectKey(event){if(event.key==='Enter'||event.key===' '){event.preventDefault();select(event);}}
-  function override(key,value){overrides={...overrides,[selected]:{...overrides[selected],[key]:value}};}
+  function switchStyle(id: StyleId){style=id;source=styles.find(s=>s.id===id)!.sample;overrides={};selected=null;tracking=0;swashLength=1;texture=false;irregular=true;crown=true;swash=true;ornaments=true;}
+  function edit(event: Event & { currentTarget: HTMLTextAreaElement }){source=event.currentTarget.value;overrides={};selected=null;notice='';}
+  function select(event: MouseEvent | KeyboardEvent){const g=event.target instanceof Element ? event.target.closest<SVGElement>('[data-glyph]') : null;if(g)selected=Number(g.dataset.glyph);}
+  function selectKey(event: KeyboardEvent){if(event.key==='Enter'||event.key===' '){event.preventDefault();select(event);}}
+  function override<K extends ModifierKey>(key: K,value: string){if(selected===null||!(MODIFIERS[key] as readonly string[]).includes(value))return;overrides={...overrides,[selected]:{...overrides[selected],[key]:value as ModifierValues[K]}};}
   function exportSVG(){let exportText=result.svg.replace(/ role="button" tabindex="0" aria-label="[^"]*"/g,'');let url=URL.createObjectURL(new Blob([exportText],{type:'image/svg+xml'}));let a=document.createElement('a');a.href=url;a.download=`${style}-${ast.glyphs.map(g=>g.char).join('').toLowerCase()||'lettering'}.svg`;a.click();URL.revokeObjectURL(url);notice='SVG exported.';}
   const examples=['RAT KING','RAVEN','NIGHT SHIFT','GUTTER'];
 </script>
@@ -72,10 +74,10 @@
       </div>
       {#if selectedGlyph}
         <div class="override-panel"><div><span class="section-label">LETTER {selectedGlyph.id+1}</span><h2>{selectedGlyph.char} <span>Local overrides</span></h2></div><div class="override-fields">
-          {#if selectedGlyph.char==='R'}<label>Swash<select value={overrides[selected]?.swash??selectedGlyph.modifiers.swash??'auto'} onchange={e=>override('swash',e.currentTarget.value)}><option value="auto">Automatic</option><option value="word">Extend</option><option value="off">Off</option></select></label>{/if}
-          {#if selectedGlyph.char==='I'}<label>Dot<select value={overrides[selected]?.dot??selectedGlyph.modifiers.dot??'auto'} onchange={e=>override('dot',e.currentTarget.value)}><option value="auto">Automatic</option><option value="crown">Crown</option><option value="star">Star</option><option value="off">Off</option></select></label>{/if}
-          <label>Letter variant<select value={overrides[selected]?.variant??selectedGlyph.modifiers.variant??'auto'} onchange={e=>override('variant',e.currentTarget.value)}><option value="auto">Automatic</option><option value="base">Base</option><option value="alt">Alternate</option></select></label>
-          <button class="text-button" onclick={()=>{const next={...overrides};delete next[selected];overrides=next;}}>Clear overrides</button>
+          {#if selectedGlyph.char==='R'}<label>Swash<select value={overrides[selectedGlyph.id]?.swash??selectedGlyph.modifiers.swash??'auto'} onchange={e=>override('swash',e.currentTarget.value)}><option value="auto">Automatic</option><option value="word">Extend</option><option value="off">Off</option></select></label>{/if}
+          {#if selectedGlyph.char==='I'}<label>Dot<select value={overrides[selectedGlyph.id]?.dot??selectedGlyph.modifiers.dot??'auto'} onchange={e=>override('dot',e.currentTarget.value)}><option value="auto">Automatic</option><option value="crown">Crown</option><option value="star">Star</option><option value="off">Off</option></select></label>{/if}
+          <label>Letter variant<select value={overrides[selectedGlyph.id]?.variant??selectedGlyph.modifiers.variant??'auto'} onchange={e=>override('variant',e.currentTarget.value)}><option value="auto">Automatic</option><option value="base">Base</option><option value="alt">Alternate</option></select></label>
+          <button class="text-button" onclick={()=>{const next={...overrides};delete next[selectedGlyph.id];overrides=next;}}>Clear overrides</button>
         </div></div>
       {:else}
         <div class="try-strip"><span>TRY A NAME</span>{#each (style==='rat'?examples:style==='harrow'?['NURSE HARROW','SISTER RAVEN','NIGHT WATCH']:['BABA','BLACK BIRD','BONE']) as ex}<button onclick={()=>{source=ex;overrides={};selected=null;}}>{ex} ↗</button>{/each}</div>

@@ -4,16 +4,18 @@
 
 ```sh
 cd ~/Programming/Personal/underworld-lettering
-npm ci
-npm run dev
+bun install --frozen-lockfile
+bun run dev
 ```
 
-Requires Node.js 20.19+ or 22.12+ for Vite. Use a current Node release supporting the JSON import attributes used by the renderer and tests.
+Requires Bun 1.4.2, pinned in `.bun-version` and `package.json`. `bun.lock` is the authoritative dependency lockfile, migrated from the original npm lockfile while preserving existing dependency resolutions. Vite and Svelte diagnostics run on Bun via `--bun`.
+
+Application modules, tests, and Vite configuration use strict TypeScript. TypeScript 7.0.2 is installed under the `@typescript/native` alias; TypeScript 6.0.3 provides the compatibility API required by `svelte-check`. The check script uses `--tsgo` for Svelte and invokes the TypeScript 7 compiler directly for standalone modules. The inferred glyph generator remains a self-contained CommonJS utility and can be run with `bun scripts/design-rat-glyphs.cjs`.
 
 The original port-5173 preview came from the staging copy under Documents/Codex. If it is still running, use a different port from this repository:
 
 ```sh
-npm run dev -- --port 5174
+bun run dev -- --port 5174
 ```
 
 Open the exact URL Vite prints. Do not assume the existing browser tab is serving this checkout. `node_modules` and `dist` were intentionally excluded when the Personal repository was created.
@@ -21,9 +23,9 @@ Open the exact URL Vite prints. Do not assume the existing browser tab is servin
 ## Checks
 
 ```sh
-npm run check
-npm test
-npm run build
+bun run check
+bun test
+bun run build
 ```
 
 Tests currently cover modifier parsing, incomplete/invalid input, the glyph cap, reference-letter coverage for the three presets, adaptive R behavior, override precedence, empty input, inferred letters, and deterministic dots/output.
@@ -38,7 +40,7 @@ For geometry or rule changes, also verify:
 6. Exported SVG in a separate viewer; it should not require any fonts.
 7. Relevant narrow layouts and keyboard-accessible letter selection.
 
-`npm run build` produces static files in `dist/`. Interface fonts currently load from Google Fonts; glyph rendering uses committed outlines and makes no network requests. There is no hosted runtime required by the app.
+`bun run build` produces static files in `dist/`. Interface fonts currently load from Google Fonts; glyph rendering uses committed outlines and makes no network requests. There is no hosted runtime required by the app.
 
 ## README screenshot policy
 

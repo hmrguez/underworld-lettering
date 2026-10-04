@@ -66,3 +66,12 @@ The original source wordmarks are isolated SVGs obtained from DeadlockSkins.gg. 
 - Expand meaningful geometry/export coverage without writing tests that merely mirror implementation.
 
 These are review candidates, not claims that all cases are broken or an authorization to expand scope.
+
+## TypeScript and Bun migration (2026-10-04)
+
+- Converted application modules, Svelte script, Vite config, and tests to strict TypeScript. Paths now end in `.ts`.
+- Bun 1.4.2 is pinned in `.bun-version` and `package.json`; use `bun install --frozen-lockfile` and `bun run dev`.
+- `bun.lock` replaces the npm lockfile, retaining existing resolutions except the requested TypeScript update and its tooling dependencies.
+- TypeScript 7.0.2 is aliased as `@typescript/native`, alongside TypeScript 6.0.3 for Svelte compatibility. `bun run check` performs TypeScript 7 diagnostics.
+- Tests use `bun:test`; `bun test` and `bun run build` run on Bun.
+- Verified on Bun 1.4.2: zero check errors/warnings, all five tests passed, production build succeeded, all three styles inspected in the built editor, and 195 render comparisons plus 13 parser comparisons matched the pre-migration source exactly.

@@ -1,1 +1,0 @@
-{"compilerOptions":{"allowJs":true,"checkJs":false,"moduleResolution":"bundler","target":"ES2022","module":"ESNext"},"include":["src/**/*"]}

@@ -2,7 +2,7 @@
 
 ## Stack and flow
 
-Svelte 5 with runes, Vite, plain JavaScript modules, static JSON outline data, and Node's built-in test runner. There is no backend, database, account system, or generative API.
+Svelte 5 with runes, Vite, strict TypeScript modules, static JSON outline data, and Bun's test runner. TypeScript 7.0.2 performs diagnostics, with TypeScript 6.0.3 retained for Svelte tooling compatibility. Bun 1.4.2 runs installation, checks, tests, and Vite. There is no backend, database, account system, or generative API.
 
 ```text
 source → lex → parse → style-specific glyph selection
@@ -15,8 +15,8 @@ source → lex → parse → style-specific glyph selection
 
 | File | Responsibility |
 | --- | --- |
-| `src/lib/parser.js` | Lexer, grammar, validation, AST |
-| `src/lib/engine.js` | Style metadata, metrics, shaping, placement, rules, SVG |
+| `src/lib/parser.ts` | Lexer, grammar, validation, AST |
+| `src/lib/engine.ts` | Style metadata, metrics, shaping, placement, rules, SVG |
 | `src/lib/reference-paths.json` | Source paths plus measured bounds |
 | `src/lib/inferred-rat-paths.json` | Generated inferred brush capitals |
 | `src/lib/fallback-paths.json` | Precomputed outlines from fallback fonts |
@@ -24,7 +24,7 @@ source → lex → parse → style-specific glyph selection
 | `src/App.svelte` | Editor, selection, overrides, settings, preview, export |
 | `src/app.css` | Industrial workshop UI and responsive layout |
 | `public/references/` | Source wordmark SVGs and fallback font licenses |
-| `tests/engine.test.js` | Parser, contextual rules, deterministic output, precedence |
+| `tests/engine.test.ts` | Parser, contextual rules, deterministic output, precedence |
 
 The reference/fallback extraction scripts used during initial bootstrapping were temporary tools and are not in this repository. Their generated JSON is committed. The inferred Rat King generator is self-contained and retained.
 

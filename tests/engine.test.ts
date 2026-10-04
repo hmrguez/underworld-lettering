@@ -1,7 +1,7 @@
-import {test} from 'node:test';
+import {test} from 'bun:test';
 import assert from 'node:assert/strict';
-import {parse} from '../src/lib/parser.js';
-import {render,styles} from '../src/lib/engine.js';
+import {parse} from '../src/lib/parser.ts';
+import {render,styles} from '../src/lib/engine.ts';
 test('modifier syntax produces word AST and rejects incomplete settings without throwing',()=>{let a=parse('R[swash=word]AT I[dot=crown]');assert.equal(a.words.length,2);assert.equal(a.glyphs[0].modifiers.swash,'word');assert.equal(a.glyphs[3].modifiers.dot,'crown');assert.equal(a.errors.length,0);assert.ok(parse('R[swash=oops').errors.length);assert.ok(parse('<script>').errors.length);assert.equal(parse('A'.repeat(40)).glyphs.length,24);});
 test('reference specimens use traced glyphs in every style',()=>{for(let s of styles){let r=render(parse(s.sample),{style:s.id,texture:false});assert.deepEqual(r.inferred,[]);assert.ok(r.svg.startsWith('<svg'));assert.ok(Number.isFinite(r.width));}});
 test('R swash adapts to the word, respects global disable and local precedence',()=>{let short=render(parse('RAT'),{texture:false});let long=render(parse('RATAT'),{texture:false});assert.notEqual(short.svg,long.svg);assert.ok(short.applied.some(r=>r.label.includes('R leg')));assert.ok(!render(parse('RAT'),{swash:false}).applied.some(r=>r.label.includes('R leg')));assert.ok(render(parse('R[swash=word]AT'),{swash:false}).applied.some(r=>r.label.includes('R leg')));assert.ok(!render(parse('R[swash=off]AT')).applied.some(r=>r.label.includes('R leg')));});
