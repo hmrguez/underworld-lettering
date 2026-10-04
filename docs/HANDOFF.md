@@ -40,11 +40,11 @@ The user liked the result and published it on GitHub. The most recent work fixed
 
 ## Fidelity boundaries
 
-| Style | Reference-derived letters | Other letters |
-| --- | --- | --- |
-| Rat King | R, A, T, K, I, N, G | Custom inferred capitals; fallback digits/punctuation |
-| Nurse Harrow | N, U, R, S, E, H, A, O, W | Cormorant Garamond outlines |
-| Baba | A, B, including alternates | Rye outlines with additional decoration |
+| Style        | Reference-derived letters  | Other letters                                         |
+| ------------ | -------------------------- | ----------------------------------------------------- |
+| Rat King     | R, A, T, K, I, N, G        | Custom inferred capitals; fallback digits/punctuation |
+| Nurse Harrow | N, U, R, S, E, H, A, O, W  | Cormorant Garamond outlines                           |
+| Baba         | A, B, including alternates | Rye outlines with additional decoration               |
 
 The original source wordmarks are isolated SVGs obtained from DeadlockSkins.gg. They contain letters and ornaments, not complete font families. The app reconstructs spacing and composition; it cannot establish Valve's unseen glyph designs. The UI explicitly identifies inferred glyphs.
 

@@ -10,11 +10,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "skipLibCheck": true,
-    "types": [
-      "bun",
-      "svelte",
-      "vite/client"
-    ]
+    "types": ["bun", "svelte", "vite/client"]
   },
   "include": [
     "src/**/*.ts",

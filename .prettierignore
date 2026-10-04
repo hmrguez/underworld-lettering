@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.svelte-check/
+.idea/
+.sites-runtime/
+.openai/
+bun.lock
+public/references/
+src/lib/*paths.json

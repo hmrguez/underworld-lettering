@@ -23,10 +23,13 @@ Open the exact URL Vite prints. Do not assume the existing browser tab is servin
 ## Checks
 
 ```sh
-bun run check
+bun run format  # Apply formatting after changes
+bun run check   # Verify formatting, types, and lint
 bun test
 bun run build
 ```
+
+`bun run typecheck`, `bun run lint`, and `bun run format:check` can also run individually. Prettier formats code and docs with Svelte support; ESLint uses recommended JavaScript, TypeScript, and Svelte rules. Generated outline JSON, reference artwork, build output, and IDE files are excluded.
 
 Tests currently cover modifier parsing, incomplete/invalid input, the glyph cap, reference-letter coverage for the three presets, adaptive R behavior, override precedence, empty input, inferred letters, and deterministic dots/output.
 
@@ -68,12 +71,12 @@ The current PNGs were encoded from the capture tool's JPEG output; conversion do
 
 At the working 1100 × 800 capture size, the source crop rectangles were:
 
-| Image | Left | Top | Width | Height |
-| --- | --- | --- | --- | --- |
-| Overview | 0 | 0 | 1085 | 800 |
-| Rat King | 400 | 250 | 610 | 365 |
-| Nurse Harrow | 400 | 250 | 610 | 365 |
-| Baba | 400 | 310 | 610 | 240 |
+| Image        | Left | Top | Width | Height |
+| ------------ | ---- | --- | ----- | ------ |
+| Overview     | 0    | 0   | 1085  | 800    |
+| Rat King     | 400  | 250 | 610   | 365    |
+| Nurse Harrow | 400  | 250 | 610   | 365    |
+| Baba         | 400  | 310 | 610   | 240    |
 
 Re-measure when the UI changes. Never use those coordinates blindly against another viewport.
 

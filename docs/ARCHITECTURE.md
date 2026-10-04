@@ -13,18 +13,18 @@ source → lex → parse → style-specific glyph selection
 
 ## Files
 
-| File | Responsibility |
-| --- | --- |
-| `src/lib/parser.ts` | Lexer, grammar, validation, AST |
-| `src/lib/engine.ts` | Style metadata, metrics, shaping, placement, rules, SVG |
-| `src/lib/reference-paths.json` | Source paths plus measured bounds |
-| `src/lib/inferred-rat-paths.json` | Generated inferred brush capitals |
-| `src/lib/fallback-paths.json` | Precomputed outlines from fallback fonts |
-| `scripts/design-rat-glyphs.cjs` | Reproducible inferred Rat King glyph generation |
-| `src/App.svelte` | Editor, selection, overrides, settings, preview, export |
-| `src/app.css` | Industrial workshop UI and responsive layout |
-| `public/references/` | Source wordmark SVGs and fallback font licenses |
-| `tests/engine.test.ts` | Parser, contextual rules, deterministic output, precedence |
+| File                              | Responsibility                                             |
+| --------------------------------- | ---------------------------------------------------------- |
+| `src/lib/parser.ts`               | Lexer, grammar, validation, AST                            |
+| `src/lib/engine.ts`               | Style metadata, metrics, shaping, placement, rules, SVG    |
+| `src/lib/reference-paths.json`    | Source paths plus measured bounds                          |
+| `src/lib/inferred-rat-paths.json` | Generated inferred brush capitals                          |
+| `src/lib/fallback-paths.json`     | Precomputed outlines from fallback fonts                   |
+| `scripts/design-rat-glyphs.cjs`   | Reproducible inferred Rat King glyph generation            |
+| `src/App.svelte`                  | Editor, selection, overrides, settings, preview, export    |
+| `src/app.css`                     | Industrial workshop UI and responsive layout               |
+| `public/references/`              | Source wordmark SVGs and fallback font licenses            |
+| `tests/engine.test.ts`            | Parser, contextual rules, deterministic output, precedence |
 
 The reference/fallback extraction scripts used during initial bootstrapping were temporary tools and are not in this repository. Their generated JSON is committed. The inferred Rat King generator is self-contained and retained.
 
@@ -99,4 +99,3 @@ Two A and two B variants are available from the reference. Later glyph positions
 Keep parsing independent from rendering. New styles should supply letter outlines, metrics, alternates, and rule behavior without changing the text grammar unnecessarily. The current engine contains style branches; there is not yet a generic external style-pack loader.
 
 Reference art is comparison material. The editable renderer must continue to assemble its own glyphs and ornaments for both preset names and arbitrary names.
-

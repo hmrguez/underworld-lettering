@@ -17,7 +17,8 @@ Read `docs/HANDOFF.md`, then `docs/ARCHITECTURE.md` and `docs/DEVELOPMENT.md` be
 ## Development rules
 
 - Preserve the lockfile and existing architecture unless the requested change requires otherwise.
-- For parser / renderer changes, run `npm run check`, `npm test`, and `npm run build`. Inspect the affected styles visually; a successful build does not establish typography fidelity.
+- After every change, run `bun run format` and `bun run check` (format verification, TypeScript/Svelte typechecking, and linting). Fix failures before finishing.
+- For parser / renderer changes, also run `bun test` and `bun run build`. Inspect the affected styles visually; a successful build does not establish typography fidelity.
 - Exported SVGs must contain their outlines and work without installed fonts. Keep source text out of raw SVG markup unless escaped and validated.
 - Confirm which checkout an existing preview server serves. The original `127.0.0.1:5173` preview was launched from a separate staging copy, not this Personal repository.
 - Do not stage unrelated files, including IDE files under `.idea/`. Do not overwrite user changes.

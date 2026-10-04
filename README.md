@@ -2,7 +2,7 @@
 
 An experimental typography workshop for industrial, punk, underground wordmarks. Type a short name, choose a hand, and see an SVG composition update instantly.
 
-Built with **Svelte 5**, **Vite**, **TypeScript 7**, and **Bun**, with a small lexer/parser and vector layout engine. Inspired by the individual hero wordmarks in Valve’s *Deadlock*.
+Built with **Svelte 5**, **Vite**, **TypeScript 7**, and **Bun**, with a small lexer/parser and vector layout engine. Inspired by the individual hero wordmarks in Valve’s _Deadlock_.
 
 ![Underworld lettering editor with Rat King live preview](docs/screenshots/workshop.png)
 
@@ -29,7 +29,8 @@ bun run dev
 Open the local URL printed by Vite. `bun.lock` pins dependencies. TypeScript 7.0.2 is installed as `@typescript/native`; Svelte diagnostics also require the TypeScript 6.0.3 compatibility API. `bun run check` uses TypeScript 7 for both Svelte and standalone TypeScript checks.
 
 ```sh
-bun run check   # Svelte diagnostics
+bun run format  # Apply formatting
+bun run check   # Formatting, typechecking, and lint
 bun test        # Parser, layout rules, and override precedence
 bun run build   # Static production build in dist/
 ```
@@ -47,12 +48,12 @@ I[dot=star]
 B[variant=alt]ABA
 ```
 
-| Setting | Values |
-| --- | --- |
-| `swash` | `auto`, `word`, `off` |
-| `dot` | `auto`, `crown`, `star`, `off` |
-| `variant` | `auto`, `base`, `alt` |
-| `ornament` | `auto`, `on`, `off` |
+| Setting    | Values                         |
+| ---------- | ------------------------------ |
+| `swash`    | `auto`, `word`, `off`          |
+| `dot`      | `auto`, `crown`, `star`, `off` |
+| `variant`  | `auto`, `base`, `alt`          |
+| `ornament` | `auto`, `on`, `off`            |
 
 Multiple settings can share a bracket, separated by commas. Settings apply when the style and letter support them. Interface overrides take precedence over inline settings; inline settings take precedence over automatic behavior. Editing the source clears interface overrides.
 
