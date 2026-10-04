@@ -60,3 +60,109 @@ test('dot overrides are deterministic and selected settings supersede source set
   );
   assert.equal(render(a).svg, render(a).svg);
 });
+
+test('different inline specimens cannot share clipping or texture definitions', () => {
+  const specimens = [
+    render(parse('RAVEN'), { texture: true }),
+    render(parse('RAT KING'), { texture: true }),
+    render(parse('NURSE HARROW'), { style: 'harrow' }),
+    render(parse('NIGHT SHIFT'), { style: 'harrow' }),
+  ];
+  const ids = specimens.flatMap((s) =>
+    [...s.svg.matchAll(/ id="([^"]+)"/g)].map((m) => m[1]),
+  );
+  assert.equal(new Set(ids).size, ids.length);
+  for (const specimen of specimens) {
+    const ownIds = new Set(
+      [...specimen.svg.matchAll(/ id="([^"]+)"/g)].map((m) => m[1]),
+    );
+    for (const match of specimen.svg.matchAll(/url\(#([^)]*)\)/g)) {
+      assert.ok(ownIds.has(match[1]), `Unresolved SVG definition: ${match[1]}`);
+    }
+  }
+});
+
+test('reference spacing survives while unrelated Rat King pairs gain clearance', () => {
+  assert.deepEqual(
+    render(parse('RAT KING')).hits.map((h) => h.x),
+    [0, 315, 471, 806, 1025, 1123, 1346],
+  );
+  assert.deepEqual(
+    render(parse('BABA'), { style: 'baba' }).hits.map((h) => h.x),
+    [0, 145, 299, 442],
+  );
+  const ab = render(parse('ABBA')).hits;
+  assert.ok(ab[1].x - ab[0].x >= 237, 'A must not overlap the inferred B stem');
+});
+
+test('Harrow crossing flourish requires another row automatically, but can be forced without cropping', () => {
+  const single = render(parse('RAVEN'), { style: 'harrow', texture: false });
+  assert.ok(!single.applied.some((r) => r.label.includes('flourish')));
+  const forced = render(parse('R[swash=word]AVEN'), {
+    style: 'harrow',
+    swash: false,
+  });
+  assert.ok(forced.applied.some((r) => r.label.includes('flourish')));
+  assert.ok(
+    forced.height >= 932 + 170,
+    'Viewport must contain the whole forced crossing stroke',
+  );
+  const suppressed = render(parse('R[swash=word]AVEN'), {
+    style: 'harrow',
+    overrides: { 0: { swash: 'off' } },
+  });
+  assert.ok(!suppressed.applied.some((r) => r.label.includes('flourish')));
+});
+
+test('Baba export ornaments use transparent cutouts, with self-contained outlines', () => {
+  const svg = render(parse('RAVEN'), { style: 'baba', texture: false }).svg;
+  assert.ok(svg.includes('<mask'));
+  assert.ok(!svg.includes('#20221c'));
+  assert.ok(!/<text|<image|<use|font-family|href=/i.test(svg));
+});
+
+test('short punctuation keeps an advance smaller than a capital in every style', () => {
+  for (const { id: style } of styles) {
+    const specimen = render(parse("A-'A"), { style, texture: false });
+    assert.ok(
+      specimen.hits[1].w < specimen.hits[0].w,
+      `${style}: oversized hyphen`,
+    );
+    assert.ok(
+      specimen.hits[2].w < specimen.hits[0].w,
+      `${style}: oversized apostrophe`,
+    );
+  }
+});
+
+test('Harrow S and E occupy the lower row when they belong to its word', () => {
+  for (const [name, glyphId, sourceY] of [
+    ['NIGHT SHIFT', 5, 0],
+    ['NURSE EVE', 5, 6],
+  ] as const) {
+    const { svg } = render(parse(name), { style: 'harrow', texture: false });
+    const transform = svg.match(
+      new RegExp(
+        `data-glyph="${glyphId}"[^>]*><g transform="translate\\([^ ]+ ([^)]+)\\) scale\\([^ ]+ ([^)]+)\\)"`,
+      ),
+    );
+    assert.ok(transform);
+    const inkTop = Number(transform[1]) + sourceY * Number(transform[2]);
+    assert.ok(
+      Math.abs(inkTop - 540) < 1,
+      `${name}: lower glyph painted at ${inkTop}`,
+    );
+  }
+});
+
+test('an explicit Baba I dot replaces the shared crown while preserving side ornaments', () => {
+  const specimen = render(parse('I[dot=star]RON'), {
+    style: 'baba',
+    texture: false,
+  });
+  assert.ok(specimen.applied.some((r) => r.label === 'I dot → star'));
+  assert.ok(specimen.applied.some((r) => r.label === 'Folk side ornaments'));
+  assert.ok(
+    !specimen.applied.some((r) => r.label === 'Folk crown + side ornaments'),
+  );
+});

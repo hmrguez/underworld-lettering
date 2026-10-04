@@ -3,22 +3,24 @@ const fs = require('fs');
 const strokes = {
   B: [
     [
-      [25, 0],
-      [15, 490],
+      [52, 26],
+      [10, 490],
     ],
     [
-      [25, 8],
-      [175, 20],
-      [225, 70],
-      [165, 205],
-      [30, 215],
+      [-22, 72],
+      [155, -10],
+      [235, 40],
+      [220, 112],
+      [130, 218],
+      [20, 243],
     ],
     [
-      [30, 215],
-      [185, 240],
-      [230, 330],
-      [185, 460],
-      [15, 478],
+      [30, 235],
+      [165, 228],
+      [245, 285],
+      [230, 370],
+      [110, 480],
+      [10, 475],
     ],
   ],
   C: [
@@ -34,16 +36,17 @@ const strokes = {
   ],
   D: [
     [
-      [20, 0],
-      [10, 490],
+      [35, 18],
+      [0, 494],
     ],
     [
-      [20, 0],
-      [165, 30],
-      [235, 170],
-      [230, 350],
-      [150, 478],
-      [10, 490],
+      [-20, 45],
+      [132, -14],
+      [236, 64],
+      [259, 205],
+      [207, 348],
+      [95, 484],
+      [0, 475],
     ],
   ],
   E: [
@@ -241,7 +244,7 @@ function poly(points) {
     'Z'
   );
 }
-function ribbon(pts, seed) {
+function ribbon(pts, seed, brush = false, stem = false) {
   let rng = () => {
     seed = (seed * 1664525 + 1013904223) >>> 0;
     return seed / 4294967296;
@@ -267,7 +270,13 @@ function ribbon(pts, seed) {
       nx = -dy / l,
       ny = dx / l;
     let w = 17 + rng() * 12;
-    if (i === 0 || i === samples.length - 1) w *= 0.8;
+    if (brush) {
+      // Broad loaded starts and tapered exits echo the reference R's brush
+      // pressure, rather than outlining a uniformly weighted block letter.
+      const t = i / (samples.length - 1);
+      w *= stem ? 1.65 - t * 0.95 : 1.45 - t * 0.55;
+    }
+    if (i === 0 || i === samples.length - 1) w *= brush ? 0.55 : 0.8;
     left.push([x + nx * w + (rng() - 0.5) * 4, y + ny * w + (rng() - 0.5) * 4]);
     right.push([
       x - nx * w + (rng() - 0.5) * 4,
@@ -301,18 +310,35 @@ function ribbon(pts, seed) {
 let result = {};
 for (let [ch, list] of Object.entries(strokes)) {
   let d = list
-    .map((pts, i) => ribbon(pts, ch.charCodeAt(0) * 100 + i))
+    .map((pts, i) =>
+      ribbon(pts, ch.charCodeAt(0) * 100 + i, ['B', 'D'].includes(ch), i === 0),
+    )
     .join('');
   let flat = list.flat();
-  let minx = Math.min(...flat.map((p) => p[0])) - 30,
-    maxx = Math.max(...flat.map((p) => p[0])) + 30;
+  const padding = ['B', 'D'].includes(ch) ? 45 : 30;
+  let minx = Math.min(...flat.map((p) => p[0])) - padding,
+    maxx = Math.max(...flat.map((p) => p[0])) + padding;
+  let miny = 0,
+    height = 490;
+  const shapedBrush = ['B', 'D'].includes(ch);
+  if (shapedBrush) {
+    // These wider, tapered strokes need actual ink bearings; skeleton padding
+    // would leave a visible space before B even in a tight pair such as AB.
+    const coordinates = d.match(/-?\d+(?:\.\d+)?/g).map(Number);
+    const xs = coordinates.filter((_, i) => i % 2 === 0);
+    const ys = coordinates.filter((_, i) => i % 2 === 1);
+    minx = Math.min(...xs);
+    maxx = Math.max(...xs);
+    miny = Math.min(...ys);
+    height = Math.max(...ys) - miny;
+  }
   result[ch] = {
     d,
     x: minx,
-    y: 0,
+    y: miny,
     w: maxx - minx,
-    h: 490,
-    advance: maxx - minx - 20,
+    h: height,
+    advance: maxx - minx + (shapedBrush ? 4 : -20),
   };
 }
 fs.writeFileSync('src/lib/inferred-rat-paths.json', JSON.stringify(result));

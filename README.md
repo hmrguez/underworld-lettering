@@ -1,5 +1,7 @@
 # Underworld Lettering
 
+_Deadlock_ is by far my favorite game of the decade for its unique and distinctive art direction, which inspired me to create this project.
+
 An experimental typography workshop for industrial, punk, underground wordmarks. Type a short name, choose a hand, and see an SVG composition update instantly.
 
 Built with **Svelte 5**, **Vite**, **TypeScript 7**, and **Bun**, with a small lexer/parser and vector layout engine. Inspired by the individual hero wordmarks in Valve’s _Deadlock_.

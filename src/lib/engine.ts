@@ -171,7 +171,8 @@ function sourceGlyph(
     const p = index == null ? undefined : refs.nurse[index];
     if (p) {
       const upper = !row;
-      const s = upper ? 460 / p.h : 1;
+      const topLetter = ['S', 'E'].includes(ch);
+      const s = upper ? (topLetter ? 1 : 460 / p.h) : topLetter ? 574 / p.h : 1;
       const adv = row
         ? (
             { H: 304, A: 317, R: 312, O: 285, W: 508 } as Record<string, number>
@@ -179,9 +180,15 @@ function sourceGlyph(
         : ({ S: 188, E: 257 } as Record<string, number>)[ch];
       return {
         p,
-        advance: adv ?? p.w * s,
+        advance: adv ?? p.w * s + (row && topLetter ? 16 : 0),
         x: p.x,
-        y: upper ? -p.y * s + 7 : 0,
+        y: upper
+          ? topLetter
+            ? 0
+            : -p.y * s + 7
+          : topLetter
+            ? 540 - p.y * s
+            : 0,
         scale: s,
         original: true,
       };
@@ -190,7 +197,7 @@ function sourceGlyph(
     const p = refs.baba[ch === 'B' ? (alt ? 1 : 0) : alt ? 22 : 2];
     return {
       p,
-      advance: ch === 'B' ? 155 : 154,
+      advance: ch === 'B' ? (alt ? 143 : 145) : 154,
       x: p.x,
       y: 0,
       scale: 1,
@@ -208,19 +215,22 @@ function sourceGlyph(
   }
   const p = (fallback as Record<StyleId, Record<string, Outline>>)[style][ch];
   if (!p) return null;
-  const height =
+  const capHeight =
     style === 'rat' ? 490 : style === 'harrow' ? (row ? 574 : 460) : 127;
+  const height = capHeight * (ch === '-' ? 0.065 : ch === "'" ? 0.22 : 1);
+  const punctuation = ch === '-' || ch === "'";
   const scale = height / p.h,
     advance =
       p.w * scale * (style === 'harrow' ? 0.7 : 1) +
-      (style === 'baba' ? 22 : 25);
+      (punctuation ? (style === 'baba' ? 10 : 12) : style === 'baba' ? 22 : 25);
   return {
     p,
     advance,
     x: p.x,
     y:
       -p.y * scale +
-      (style === 'rat' ? 310 : style === 'harrow' ? (row ? 540 : 7) : 52),
+      (style === 'rat' ? 310 : style === 'harrow' ? (row ? 540 : 7) : 52) +
+      (ch === '-' ? capHeight * 0.47 : ch === "'" ? capHeight * 0.03 : 0),
     scale,
     scaleX: style === 'harrow' ? 0.7 : 1,
     original: false,
@@ -260,6 +270,13 @@ export function render(
     ...options,
   };
   const color = /^#[\da-f]{6}$/i.test(o.color) ? o.color : '#eee6d1';
+  // Identical specimens share identical definitions; different compositions must
+  // never resolve their clips or filters against another inline SVG's geometry.
+  let hash = 2166136261;
+  for (const ch of JSON.stringify([ast, o])) {
+    hash = Math.imul(hash ^ ch.charCodeAt(0), 16777619) >>> 0;
+  }
+  const namespace = `lettering-${hash.toString(16)}`;
   let defs = '',
     body = '';
   const applied: AppliedRule[] = [],
@@ -274,25 +291,58 @@ export function render(
   const layouts = rows.map((words, row) => {
     let x = 0;
     const items: LayoutItem[] = [];
-    for (const w of words) {
+    for (const [wordIndex, w] of words.entries()) {
       const start = x;
-      for (const g of w.glyphs) {
+      for (const [glyphIndex, g] of w.glyphs.entries()) {
         const alt =
           setting(g, o.overrides, 'variant') === 'alt' ||
           (setting(g, o.overrides, 'variant') === 'auto' && isB && g.id > 1);
         const asset = sourceGlyph(o.style, g.char, row, alt);
         if (asset) {
+          const next = w.glyphs[glyphIndex + 1]?.char;
+          if (o.style === 'rat' && g.char === 'L' && next === 'A') {
+            // A's upper left is open; L's foot sits below its shorter outline.
+            asset.advance -= 65;
+          }
+          // Source advances include intentional overlaps between particular
+          // silhouettes. Do not carry those overlaps into unrelated pairs.
+          if (asset.original && next) {
+            const pair = g.char + next;
+            const referencePair =
+              o.style === 'rat'
+                ? ['AT', 'TK', 'KI', 'IN', 'NG'].includes(pair)
+                : isH
+                  ? (row
+                      ? ['HA', 'AR', 'RR', 'RO', 'OW']
+                      : ['NU', 'UR', 'RS', 'SE']
+                    ).includes(pair)
+                  : true;
+            if (!referencePair && g.char !== 'R' && !asset.clip) {
+              asset.advance = Math.max(
+                asset.advance,
+                asset.p.w * asset.scale + (isH ? 8 : 6),
+              );
+            }
+          }
           items.push({ g, a: asset, x, row, wordStart: start });
           x += asset.advance + Number(o.tracking) * (isB ? 0.22 : 1);
         }
       }
-      x += isB ? 60 : isH ? 85 : 15;
+      if (wordIndex < words.length - 1) {
+        const nextWord = words[wordIndex + 1];
+        const sourceRatGap =
+          w.glyphs.at(-1)?.char === 'T' && nextWord.glyphs[0]?.char === 'K';
+        x += isB ? 60 : isH ? 85 : sourceRatGap ? 15 : 65;
+      }
     }
+    const last = items.at(-1);
     return {
       items,
       width: Math.max(
         1,
-        x - (isB ? 60 : isH ? 85 : 15) - Number(o.tracking) * (isB ? 0.22 : 1),
+        isB && last
+          ? last.x + last.a.p.w * last.a.scale
+          : x - Number(o.tracking) * (isB ? 0.22 : 1),
       ),
     };
   });
@@ -304,14 +354,14 @@ export function render(
         (n, i) => n + i.a.advance + Number(o.tracking) * (isB ? 0.22 : 1),
         0,
       ) || 0;
-  const height = isB ? 220 : isH ? (rows.length > 1 ? 1170 : 610) : 990;
+  let height = isB ? 220 : isH ? (rows.length > 1 ? 1170 : 610) : 990;
   for (const layout of layouts) {
     const offset =
       (maxW - layout.width) / 2 -
       (isH && rows.length > 1 && layout === layouts[0] ? 42 : 0);
     for (const { g, a, x: originalX } of layout.items) {
       const x = originalX + offset;
-      const id = `glyph-${g.id}`,
+      const id = `${namespace}-glyph-${g.id}`,
         s = a.scale,
         tx = -a.x * (a.scaleX ?? 1) * s,
         ty = a.y;
@@ -319,7 +369,12 @@ export function render(
       if (a.clip) {
         defs += `<clipPath id="clip-${id}"><rect x="${a.clip.x}" y="${a.clip.y}" width="${a.clip.w}" height="${a.clip.h}"/></clipPath>`;
         shape = path(a.p.d, '', `clip-path="url(#clip-${id})"`);
-      } else shape = path(a.p.d);
+      } else {
+        shape = path(a.p.d);
+        if (isB && g.char === 'A' && a.original) {
+          shape += path(refs.baba[a.p === refs.baba[22] ? 23 : 21].d);
+        }
+      }
       shape = group(
         shape,
         `translate(${fmt(tx)} ${fmt(ty)}) scale(${fmt(s * (a.scaleX ?? 1))} ${fmt(s)})`,
@@ -356,8 +411,12 @@ export function render(
       let glyphBody = shape;
       const dot = setting(g, o.overrides, 'dot');
       if (g.char === 'I' && dot !== 'off' && dot !== 'auto') {
+        const inkTop =
+          o.style === 'rat' && !o.irregular && a.original
+            ? 310
+            : a.y + a.p.y * s;
         const cx = a.advance * 0.5,
-          cy = isB ? 24 : 220;
+          cy = inkTop - (dot === 'star' ? 54 : 36);
         const mark =
           dot === 'star'
             ? `M${cx} ${cy - 35}l9 23 25 2-19 16 6 24-21-14-21 14 6-24-19-16 25-2Z`
@@ -371,10 +430,13 @@ export function render(
       if (
         isB &&
         enabled(g, o.overrides, 'ornament', o.ornaments) &&
-        !a.original
+        !a.original &&
+        /^[A-Z]$/.test(g.char)
       ) {
         const cx = a.advance * 0.5;
-        glyphBody += `<path d="M${cx} 72q-12 10 0 21q12-11 0-21M${cx} 120l-7 10 7 10 7-10Z" fill="#20221c"/>`;
+        const maskId = `${id}-ornament`;
+        defs += `<mask id="${maskId}" maskUnits="userSpaceOnUse" x="-8" y="-65" width="${fmt(a.advance + 16)}" height="285"><rect x="-8" y="-65" width="${fmt(a.advance + 16)}" height="285" fill="white"/><path d="M${cx} 72q-12 10 0 21q12-11 0-21M${cx} 120l-7 10 7 10 7-10Z" fill="black"/></mask>`;
+        glyphBody = `<g mask="url(#${maskId})">${glyphBody}</g>`;
       }
       const rot =
         setting(g, o.overrides, 'variant') === 'alt' && !isB
@@ -404,43 +466,58 @@ export function render(
     )
   ) {
     const p = refs.ratking[6];
+    const crownY = layouts[0].items.some((i) => i.g.word === 0 && !i.a.original)
+      ? -35
+      : 0;
     body += path(
       p.d,
-      `translate(${fmt(firstWidth * 0.823 - p.x - p.w / 2)} 0)`,
+      `translate(${fmt(firstWidth * 0.823 - p.x - p.w / 2)} ${crownY})`,
     );
     applied.push({ label: 'Crown → first word' });
   }
   if (isH) {
     const r = layouts[0].items.find(
-      (i) => i.g.char === 'R' && enabled(i.g, o.overrides, 'swash', o.swash),
+      (i) =>
+        i.g.char === 'R' &&
+        enabled(i.g, o.overrides, 'swash', o.swash && rows.length > 1),
     );
     if (r) {
-      const x = r.x + (maxW - layouts[0].width) / 2 - 928;
+      const x =
+        r.x + (maxW - layouts[0].width) / 2 - (rows.length > 1 ? 42 : 0) - 928;
       body += group(
         path(refs.nurse[9].d) + path(refs.nurse[10].d),
         `translate(${fmt(x)} 0)`,
       );
       applied.push({ glyph: r.g.id, label: 'R flourish → lower line' });
+      height = Math.max(height, refs.nurse[10].y + refs.nurse[10].h);
+      maxW = Math.max(maxW, x + refs.nurse[10].x + refs.nurse[10].w);
     }
   }
   if (isB && o.ornaments && ast.glyphs.length) {
-    const parts = [3, 14, 15, 16, 17, 18, 19, 20, 24];
+    const parts = [3, 10, 11, 14, 15, 16, 17, 18, 19, 20, 24];
     const crown = parts.map((i) => path(refs.baba[i].d)).join('');
-    body += group(crown, `translate(${fmt(maxW / 2 - 318)} 0)`);
+    const dottedI = ast.glyphs.some(
+      (g) =>
+        g.char === 'I' &&
+        ['crown', 'star'].includes(setting(g, o.overrides, 'dot')),
+    );
+    if (!dottedI) body += group(crown, `translate(${fmt(maxW / 2 - 323.5)} 0)`);
     const ornaments = [4, 5, 8, 12].map((i) => path(refs.baba[i].d)).join('');
     body += group(ornaments, 'translate(-34 0)');
-    body += group(ornaments, `translate(${fmt(maxW + 34)} 0) scale(-1 1)`);
-    applied.push({ label: 'Folk crown + side ornaments' });
+    const sideGap = layouts[0].items.at(-1)?.a.original ? 23 : 42;
+    body += group(ornaments, `translate(${fmt(maxW + sideGap)} 0) scale(-1 1)`);
+    applied.push({
+      label: dottedI ? 'Folk side ornaments' : 'Folk crown + side ornaments',
+    });
   }
   if (o.texture && o.style === 'rat') {
-    defs +=
-      '<filter id="ink-grain" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency=".052" numOctaves="2" seed="8" result="noise"/><feColorMatrix in="noise" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.2 -.15"/><feComposite in="SourceGraphic" operator="out"/></filter>';
+    defs += `<filter id="${namespace}-ink-grain" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency=".052" numOctaves="2" seed="8" result="noise"/><feColorMatrix in="noise" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.2 -.15"/><feComposite in="SourceGraphic" operator="out"/></filter>`;
     applied.push({ label: 'Ink grain' });
   }
   const margin = isB ? 65 : 85,
     w = fmt(maxW + margin * 2),
     h = height + margin * 2;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${-margin} ${-margin} ${w} ${h}" role="img" aria-label="${styles.find((s) => s.id === o.style)?.name || 'Lettering'} preview" fill="${color}"><defs>${defs}</defs><g ${o.texture && o.style === 'rat' ? 'filter="url(#ink-grain)"' : ''}>${body}</g></svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${-margin} ${-margin} ${w} ${h}" role="img" aria-label="${styles.find((s) => s.id === o.style)?.name || 'Lettering'} preview" fill="${color}"><defs>${defs}</defs><g ${o.texture && o.style === 'rat' ? `filter="url(#${namespace}-ink-grain)"` : ''}>${body}</g></svg>`;
   return {
     svg,
     width: w,

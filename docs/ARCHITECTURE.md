@@ -84,15 +84,17 @@ Reference path indices map to individual glyphs. Their measured advance widths d
 
 The R outline includes its long tail. The engine clips base and tail separately, stretches the tail horizontally according to the current word width, and expands the viewport for its reach. Automatic swashes apply to an R at the beginning of a word of at most six glyphs. A local modifier can force or suppress the swash.
 
-The source crown is positioned relative to the first word. An explicit crown/star I dot suppresses that first-word crown. Unseen capitals are built from deterministic irregular ribbons around angular stroke skeletons.
+The source crown is positioned relative to the first word, with extra vertical clearance for inferred capitals. An explicit crown/star I dot suppresses that first-word crown; its mark follows the glyph's actual top. Unseen capitals are built from deterministic irregular ribbons around angular stroke skeletons. Original pair overlaps are retained, while unrelated pairs and word boundaries receive additional clearance.
 
 ### Nurse Harrow
 
-One word occupies a single row. For multiple words, the first occupies the top row and the remaining words share the bottom row. The source has a combined N/U/R path, so those top-row glyphs are isolated with clip regions. A reference R flourish is drawn separately and can cross into the lower row. Some offsets are tuned to the original name rather than calculated from a general collision solver.
+One word occupies a single row. For multiple words, the first occupies the top row and the remaining words share the bottom row. The source has a combined N/U/R path, so those top-row glyphs are isolated with clip regions. S and E preserve their native outlines on top, and are scaled and translated for the lower row. A reference R flourish is drawn separately at the R's layout position; it is automatic for multiple rows and can be forced for a single word, expanding the viewport to contain its reach. Some offsets are tuned to the original name rather than calculated from a general collision solver.
 
 ### Baba
 
-Two A and two B variants are available from the reference. Later glyph positions choose alternates automatically. The crown and side ornaments are separate source paths. Missing letters use Rye outlines; additional interior decorative shapes are drawn in the canvas's dark color rather than being transparent cutouts. Consider this when changing canvas backgrounds or refining export transparency.
+Two A and two B variants are available from the reference, including their small counter details. Later glyph positions choose alternates automatically. The crown and side ornaments are separate source paths, positioned against the final letter's ink bounds. An explicit I dot replaces the shared crown. Missing letters use Rye outlines; additional interior decoration uses transparent SVG masks and supports other backgrounds on export.
+
+SVG definitions use a deterministic namespace derived from the AST and render options. Different specimens can coexist without resolving clips, masks, or filters against another preview. Punctuation scales to a fraction of cap height and uses its own vertical placement.
 
 ## Extension guidance
 
