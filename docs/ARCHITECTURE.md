@@ -86,7 +86,7 @@ Reference path indices map to individual glyphs. Their measured advance widths d
 
 The R outline includes its long tail. The engine clips base and tail separately, stretches the tail horizontally according to the current word width, and expands the viewport for its reach. Automatic swashes apply to an R at the beginning of a word of at most six glyphs. A local modifier can force or suppress the swash.
 
-The source crown is positioned relative to the first word, with extra vertical clearance for inferred capitals. An explicit crown/star I dot suppresses that first-word crown; its mark follows the glyph's actual top. Unseen capitals are built from deterministic irregular ribbons around angular stroke skeletons. Original pair overlaps are retained, while unrelated pairs and word boundaries receive additional clearance.
+The source crown is positioned relative to the first word, with extra vertical clearance for inferred capitals. An explicit crown/star I dot suppresses that first-word crown; its mark follows the glyph's actual top. Unseen capitals are built from deterministic pressure ribbons around angular stroke skeletons. Long facets, split-bristle terminals and sparse longitudinal edge tears supply brush character without dense contour noise. Closed O/Q bowls use oppositely wound contours to preserve their counters. The generator measures finished ink bounds, including the bristle tips, for every inferred capital. Original pair overlaps are retained, while unrelated pairs and word boundaries receive additional clearance.
 
 ### Nurse Harrow
 

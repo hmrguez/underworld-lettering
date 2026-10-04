@@ -177,3 +177,18 @@ Valve artwork and reference-derived contours remain third-party material, obtain
 The shared source contour included both V’s upper-right serif and E’s upper-left fragment. It is now split at their junction, so standalone V no longer includes the E shoulder and standalone E retains it. Both intact envelopes were corrected. V’s measured width and V/E kerning changed together, preserving the reference positions of V, E and S in GRAVES. A regression test checks fragment ownership and preset positions.
 
 The 40 tests, format/check/build, 420 existing-style comparisons, all 80 baseline specimens, browser precedence/reset checks and independent exports were rechecked. Additional [isolated V/E ownership specimens](verification/graves/ownership.png) cover V, E, VE, EV, repeated letters and GRAVES in both intact and fractured forms. Updated raster checks found 11,967 transparent crack pixels and a source alpha mean difference of 0.3858/255; all 69 inspected raster viewports retain transparent borders. Shared contour boundaries and intact forms remain reconstructions.
+
+## Rat King inferred brush refinement — 2026-10-04
+
+Reworked the 19 inferred capitals in `scripts/design-rat-glyphs.cjs`. Stroke skeletons now use long pressure facets (maximum 145-unit intervals instead of 23), broad loaded entries, lighter exits, unequal split-bristle tips and two intermittent longitudinal edge tears. Closed O/Q bowls retain transparent counters with opposite winding. Finished outlines provide measured bearings and advances. Reference R/A/T/K/I/N/G, crown, swash and fallback digits/punctuation are unchanged. The new capitals remain inferred designs, not recovered Valve artwork.
+
+The bundled source wordmark and original poster contact sheet were inspected, alongside the official City Never Sleeps page. G's broad angular turns guided the inferred curves. C outline line segments decreased from 83 to 41, O from 119 to 28, S from 93 to 39; counts include terminal bristle details. This is a visual refinement, not a claim of exact unseen-alphabet fidelity.
+
+- Preview port **5278**, process **69162**, was verified by `lsof` to serve this Personal checkout.
+- All **80 baseline specimens** (10 names × 8 styles) were inspected in the browser. Rat King additionally passed **60 spacing/detail specimens** at -35/0/+60 tracking with crown/swash/ornaments off/on, plus all inferred capital forms and enlarged curves. Tight tracking still deliberately overlaps some strokes.
+- **420 comparisons** confirmed byte-identical output for the seven other styles. The default `RAT KING` SVG is also byte-identical to the pre-change snapshot.
+- Browser checks confirmed inline R suppression and star I, a local Extend override superseding suppression, text edits clearing selection/overrides, inference disclosure, and extra ink wear on the revised lettering.
+- The export button displayed its success notice, but browser download-event collection timed out. A saved copy of the actual live SVG, cleaned with the same export transformation, parsed as XML and rendered independently on dark, blue and gray backgrounds. Its counters and edge cuts remain transparent; no fonts/images/scripts or selection semantics are required. This validates the SVG contents, not download-file delivery.
+- `bun run format`, `bun run check`, **40 tests**, and `bun run build` passed. The existing bundle-size advisory remains.
+
+Local ignored evidence is under `docs/verification/rat-brush/`: `comparison.png`, the eight style sheets, `spacing--35.png`, `spacing-0.png`, `spacing-60.png`, `curves.png`, and `export.svg` / `exports.html`. README images, dependencies, source references and licensing were preserved.

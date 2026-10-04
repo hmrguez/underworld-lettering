@@ -244,101 +244,135 @@ function poly(points) {
     'Z'
   );
 }
-function ribbon(pts, seed, brush = false, stem = false) {
-  let rng = () => {
+// Long pressure facets carry the gesture. Dry bristles belong at stroke ends,
+// not at every sample of a curve (which made the old bowls look serrated).
+function ribbon(pts, seed) {
+  const rng = () => {
     seed = (seed * 1664525 + 1013904223) >>> 0;
     return seed / 4294967296;
   };
-  let samples = [];
+  const closed = pts[0].every((n, i) => n === pts.at(-1)[i]);
+  const samples = [];
   for (let i = 0; i < pts.length - 1; i++) {
-    let [x, y] = pts[i],
-      dx = pts[i + 1][0] - x,
-      dy = pts[i + 1][1] - y,
-      n = Math.max(1, Math.ceil(Math.hypot(dx, dy) / 23));
-    for (let j = 0; j < n; j++)
-      samples.push([x + (dx * j) / n, y + (dy * j) / n]);
+    const [x, y] = pts[i];
+    const dx = pts[i + 1][0] - x;
+    const dy = pts[i + 1][1] - y;
+    const count = Math.max(1, Math.ceil(Math.hypot(dx, dy) / 145));
+    for (let j = 0; j < count; j++)
+      samples.push([x + (dx * j) / count, y + (dy * j) / count]);
   }
-  samples.push(pts.at(-1));
-  let left = [],
-    right = [];
-  samples.forEach(([x, y], i) => {
-    let prev = samples[Math.max(0, i - 1)],
-      next = samples[Math.min(samples.length - 1, i + 1)],
-      dx = next[0] - prev[0],
-      dy = next[1] - prev[1],
-      l = Math.hypot(dx, dy) || 1,
-      nx = -dy / l,
-      ny = dx / l;
-    let w = 17 + rng() * 12;
-    if (brush) {
-      // Broad loaded starts and tapered exits echo the reference R's brush
-      // pressure, rather than outlining a uniformly weighted block letter.
-      const t = i / (samples.length - 1);
-      w *= stem ? 1.65 - t * 0.95 : 1.45 - t * 0.55;
-    }
-    if (i === 0 || i === samples.length - 1) w *= brush ? 0.55 : 0.8;
-    left.push([x + nx * w + (rng() - 0.5) * 4, y + ny * w + (rng() - 0.5) * 4]);
-    right.push([
-      x - nx * w + (rng() - 0.5) * 4,
-      y - ny * w + (rng() - 0.5) * 4,
-    ]);
+  if (!closed) samples.push(pts.at(-1));
+  const frames = samples.map(([x, y], i) => {
+    const prev =
+      samples[
+        closed ? (i + samples.length - 1) % samples.length : Math.max(0, i - 1)
+      ];
+    const next =
+      samples[
+        closed ? (i + 1) % samples.length : Math.min(samples.length - 1, i + 1)
+      ];
+    const unit = (dx, dy) => {
+      const len = Math.hypot(dx, dy) || 1;
+      return [dx / len, dy / len];
+    };
+    const incoming =
+      i === 0 && !closed
+        ? unit(next[0] - x, next[1] - y)
+        : unit(x - prev[0], y - prev[1]);
+    const outgoing =
+      i === samples.length - 1 && !closed
+        ? incoming
+        : unit(next[0] - x, next[1] - y);
+    const [tx, ty] = unit(incoming[0] + outgoing[0], incoming[1] + outgoing[1]);
+    const t = i / (samples.length - 1);
+    // Broad loaded entry, lighter exit; small slow pressure shifts, no noise
+    // added to coordinates. Limited miters keep angular shoulders connected.
+    const pressure = closed
+      ? 1 + 0.16 * Math.sin(t * Math.PI * 2)
+      : 1.32 - 0.48 * t;
+    const width = (23 + rng() * 5) * pressure;
+    const miter = Math.min(
+      1.45,
+      1 / Math.max(0.4, tx * outgoing[0] + ty * outgoing[1]),
+    );
+    return { x, y, tx, ty, nx: -ty, ny: tx, width: width * miter };
   });
-  let outer = [...left, ...right.reverse()];
-  let d = poly(outer); // Narrow paint cracks run with the stroke.
-  let [a, b] = [pts[0], pts[1]],
-    dx = b[0] - a[0],
-    dy = b[1] - a[1],
-    len = Math.hypot(dx, dy),
-    nx = -dy / len,
-    ny = dx / len;
-  for (let q of [0.18, 0.73]) {
-    let x = a[0] + dx * q,
-      y = a[1] + dy * q;
-    let end = Math.min(0.97, q + 0.09);
-    let xx = a[0] + dx * end,
-      yy = a[1] + dy * end;
-    let cut = [
-      [x + nx * 2, y + ny * 2],
-      [xx + nx, yy + ny],
-      [xx - nx, yy - ny],
-      [x - nx * 2, y - ny * 2],
-    ]; // Outer winding is negative; cuts are positive.
-    d += poly(cut.reverse());
-  }
-  return d;
+  const side = (sign) =>
+    frames.map((f) => [
+      f.x + sign * f.nx * f.width,
+      f.y + sign * f.ny * f.width,
+    ]);
+  const left = side(1),
+    right = side(-1);
+  // One small longitudinal edge split per long stroke side. The placement is
+  // intermittent; it never adds a repeated tooth to every curve segment.
+  const splitEdge = (edge, sign) => {
+    if (edge.length < 4) return edge;
+    const index = sign === 1 ? 1 : edge.length - 3;
+    const a = edge[index],
+      b = edge[index + 1];
+    const f = frames[index];
+    const along = (t, inset) => [
+      a[0] + (b[0] - a[0]) * t - sign * f.nx * inset,
+      a[1] + (b[1] - a[1]) * t - sign * f.ny * inset,
+    ];
+    return [
+      ...edge.slice(0, index + 1),
+      along(0.35, -3),
+      along(0.4, 8),
+      along(0.82, 0),
+      ...edge.slice(index + 1),
+    ];
+  };
+  const l = splitEdge(left, 1),
+    r = splitEdge(right, -1);
+  if (closed) return poly(l) + poly(r.reverse());
+  const cap = (f, end) => {
+    const sign = end ? 1 : -1;
+    // Unequal bristle lengths, with two deep narrow gaps, follow the direction
+    // of the brush. These are transparent notches in the outline itself.
+    const profile = [
+      [0.76, 8],
+      [0.39, 14],
+      [0.29, -15],
+      [0.16, 18],
+      [-0.2, 11],
+      [-0.32, -10],
+      [-0.45, 23],
+      [-0.83, 6],
+    ];
+    return profile.map(([across, reach]) => [
+      f.x + sign * f.nx * f.width * across + sign * f.tx * reach,
+      f.y + sign * f.ny * f.width * across + sign * f.ty * reach,
+    ]);
+  };
+  return poly([
+    ...l,
+    ...cap(frames.at(-1), true),
+    ...r.reverse(),
+    ...cap(frames[0], false),
+  ]);
 }
 let result = {};
 for (let [ch, list] of Object.entries(strokes)) {
   let d = list
-    .map((pts, i) =>
-      ribbon(pts, ch.charCodeAt(0) * 100 + i, ['B', 'D'].includes(ch), i === 0),
-    )
+    .map((pts, i) => ribbon(pts, ch.charCodeAt(0) * 100 + i))
     .join('');
-  let flat = list.flat();
-  const padding = ['B', 'D'].includes(ch) ? 45 : 30;
-  let minx = Math.min(...flat.map((p) => p[0])) - padding,
-    maxx = Math.max(...flat.map((p) => p[0])) + padding;
-  let miny = 0,
-    height = 490;
-  const shapedBrush = ['B', 'D'].includes(ch);
-  if (shapedBrush) {
-    // These wider, tapered strokes need actual ink bearings; skeleton padding
-    // would leave a visible space before B even in a tight pair such as AB.
-    const coordinates = d.match(/-?\d+(?:\.\d+)?/g).map(Number);
-    const xs = coordinates.filter((_, i) => i % 2 === 0);
-    const ys = coordinates.filter((_, i) => i % 2 === 1);
-    minx = Math.min(...xs);
+  // Measure the finished outline, including bristle tips, for every glyph.
+  const coordinates = d.match(/-?\d+(?:\.\d+)?/g).map(Number);
+  const xs = coordinates.filter((_, i) => i % 2 === 0);
+  const ys = coordinates.filter((_, i) => i % 2 === 1);
+  const minx = Math.min(...xs),
     maxx = Math.max(...xs);
-    miny = Math.min(...ys);
+  const miny = Math.min(...ys),
     height = Math.max(...ys) - miny;
-  }
   result[ch] = {
     d,
     x: minx,
     y: miny,
     w: maxx - minx,
     h: height,
-    advance: maxx - minx + (shapedBrush ? 4 : -20),
+    advance: maxx - minx + 4,
   };
 }
 fs.writeFileSync('src/lib/inferred-rat-paths.json', JSON.stringify(result));
