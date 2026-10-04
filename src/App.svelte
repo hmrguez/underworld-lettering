@@ -5,6 +5,7 @@
   import type { StyleId } from './lib/engine.ts';
   let style = $state<StyleId>('rat'),
     source = $state('RAT KING'),
+    hourglasses = $state(true),
     bubbles = $state(true),
     fractures = $state(true),
     fractureIntensity = $state(1),
@@ -32,6 +33,7 @@
   let result = $derived(
     render(ast, {
       style,
+      hourglasses,
       bubbles,
       fractures,
       fractureIntensity,
@@ -63,6 +65,7 @@
     swashLength = 1;
     texture = false;
     irregular = true;
+    hourglasses = true;
     bubbles = true;
     fractures = true;
     fractureIntensity = 1;
@@ -220,6 +223,15 @@
               >Crossing R flourish <small>Reaches into the lower line</small
               ></span
             ><input type="checkbox" bind:checked={swash} /><span class="switch"
+            ></span></label
+          >
+        {:else if style === 'paradox'}
+          <label class="toggle"
+            ><span
+              >Hourglass counters <small>Automatic in A, O, Q and zero</small
+              ></span
+            ><input type="checkbox" bind:checked={hourglasses} /><span
+              class="switch"
             ></span></label
           >
         {:else if style === 'viscous'}
@@ -439,7 +451,7 @@
             </div>
             {#if compare}<div class="reference-wrap">
                 <img
-                  src={`${import.meta.env.BASE_URL}references/${style === 'viscous' ? 'viscous' : style === 'rat' ? 'ratking' : style === 'harrow' ? 'nurse' : style === 'solomon' ? 'solomon' : style === 'venator' ? 'venator' : style === 'celeste' ? 'celeste' : style === 'graves' ? 'graves' : style === 'violet' ? 'violet' : 'baba'}-wordmark.svg`}
+                  src={`${import.meta.env.BASE_URL}references/${style === 'paradox' ? 'paradox' : style === 'viscous' ? 'viscous' : style === 'rat' ? 'ratking' : style === 'harrow' ? 'nurse' : style === 'solomon' ? 'solomon' : style === 'venator' ? 'venator' : style === 'celeste' ? 'celeste' : style === 'graves' ? 'graves' : style === 'violet' ? 'violet' : 'baba'}-wordmark.svg`}
                   alt={`${pack.name} source wordmark`}
                 /><span class="image-label">SOURCE WORDMARK</span>
               </div>{/if}
@@ -474,7 +486,7 @@
             <h2>{selectedGlyph.char} <span>Local overrides</span></h2>
           </div>
           <div class="override-fields">
-            {#if selectedGlyph.char === 'R' && style !== 'solomon' && style !== 'venator' && style !== 'celeste' && style !== 'violet' && style !== 'graves' && style !== 'viscous'}<label
+            {#if selectedGlyph.char === 'R' && style !== 'solomon' && style !== 'venator' && style !== 'celeste' && style !== 'violet' && style !== 'graves' && style !== 'viscous' && style !== 'paradox'}<label
                 >Swash<select
                   value={overrides[selectedGlyph.id]?.swash ??
                     selectedGlyph.modifiers.swash ??
@@ -485,7 +497,7 @@
                   ><option value="off">Off</option></select
                 ></label
               >{/if}
-            {#if selectedGlyph.char === 'I' && style !== 'solomon' && style !== 'venator' && style !== 'celeste' && style !== 'violet' && style !== 'graves' && style !== 'viscous'}<label
+            {#if selectedGlyph.char === 'I' && style !== 'solomon' && style !== 'venator' && style !== 'celeste' && style !== 'violet' && style !== 'graves' && style !== 'viscous' && style !== 'paradox'}<label
                 >Dot<select
                   value={overrides[selectedGlyph.id]?.dot ??
                     selectedGlyph.modifiers.dot ??
@@ -496,6 +508,17 @@
                   ><option value="star">Star</option><option value="off"
                     >Off</option
                   ></select
+                ></label
+              >{/if}
+            {#if style === 'paradox' && 'ABDPORQ0689'.includes(selectedGlyph.char)}<label
+                >Hourglass counter<select
+                  value={overrides[selectedGlyph.id]?.counter ??
+                    selectedGlyph.modifiers.counter ??
+                    'auto'}
+                  onchange={(e) => override('counter', e.currentTarget.value)}
+                  ><option value="auto">Automatic</option><option value="off"
+                    >Solid</option
+                  ><option value="on">Hourglass</option></select
                 ></label
               >{/if}
             {#if style === 'viscous'}<label
@@ -616,7 +639,7 @@
                 >
               {/each}
             {/if}
-            {#if (style !== 'solomon' && style !== 'venator' && style !== 'celeste' && style !== 'violet' && style !== 'graves' && style !== 'viscous') || (style === 'viscous' && (selectedGlyph.char === 'S' || (/^[A-Z]$/.test(selectedGlyph.char) && !'VICOUQ'.includes(selectedGlyph.char)))) || (style === 'solomon' && selectedGlyph.char === 'O') || (style === 'venator' && (selectedGlyph.char === 'V' || (/^[A-Z]$/.test(selectedGlyph.char) && !'ENATOR'.includes(selectedGlyph.char))))}
+            {#if (style !== 'solomon' && style !== 'venator' && style !== 'celeste' && style !== 'violet' && style !== 'graves' && style !== 'viscous' && style !== 'paradox') || (style === 'paradox' && selectedGlyph.char === 'A') || (style === 'viscous' && (selectedGlyph.char === 'S' || (/^[A-Z]$/.test(selectedGlyph.char) && !'VICOUQ'.includes(selectedGlyph.char)))) || (style === 'solomon' && selectedGlyph.char === 'O') || (style === 'venator' && (selectedGlyph.char === 'V' || (/^[A-Z]$/.test(selectedGlyph.char) && !'ENATOR'.includes(selectedGlyph.char))))}
               <label
                 >Letter variant<select
                   value={overrides[selectedGlyph.id]?.variant ??
@@ -642,7 +665,7 @@
       {:else}
         <div class="try-strip">
           <span>TRY A NAME</span
-          >{#each style === 'viscous' ? ['VISCOUS', 'GUTTER', 'BUBBLE'] : style === 'rat' ? examples : style === 'harrow' ? ['NURSE HARROW', 'SISTER RAVEN', 'NIGHT WATCH'] : style === 'graves' ? ['GRAVES', 'GRAVEYARD', 'IRON WITCH'] : style === 'violet' ? ['VIOLET', 'VIVID', 'PAINT THE NIGHT'] : style === 'celeste' ? ['CELESTE', 'STAR LIGHT', 'MOON'] : style === 'venator' ? ['VENATOR', 'VIVID', 'NIGHT SHIFT'] : style === 'solomon' ? ['SOLOMON', 'IRON WITCH', 'RED MOON'] : ['BABA', 'BLACK BIRD', 'BONE'] as ex (ex)}<button
+          >{#each style === 'paradox' ? ['PARADOX', 'HOURGLASS', 'TIME LOOP'] : style === 'viscous' ? ['VISCOUS', 'GUTTER', 'BUBBLE'] : style === 'rat' ? examples : style === 'harrow' ? ['NURSE HARROW', 'SISTER RAVEN', 'NIGHT WATCH'] : style === 'graves' ? ['GRAVES', 'GRAVEYARD', 'IRON WITCH'] : style === 'violet' ? ['VIOLET', 'VIVID', 'PAINT THE NIGHT'] : style === 'celeste' ? ['CELESTE', 'STAR LIGHT', 'MOON'] : style === 'venator' ? ['VENATOR', 'VIVID', 'NIGHT SHIFT'] : style === 'solomon' ? ['SOLOMON', 'IRON WITCH', 'RED MOON'] : ['BABA', 'BLACK BIRD', 'BONE'] as ex (ex)}<button
               onclick={() => {
                 source = ex;
                 overrides = {};
@@ -663,6 +686,13 @@
             designs, not traced reference letters.
           </p>{:else if !result.empty}<p class="fidelity">
             All letters in this name use reference-derived outlines.
+          </p>{/if}
+        {#if style === 'paradox'}<p class="fidelity">
+            P, A (two forms), R, D, O and X retain source contours. Only A and O
+            have evidenced hourglass counters; P, R and D remain solid
+            automatically. Other glyphs, forced counters outside A/O and Q/zero
+            counters are inferred designs. Unsupported narrow or open letters
+            stay solid.
           </p>{/if}
         {#if style === 'viscous'}<p class="fidelity">
             V, I, S (two forms), C, O and U retain source contours. All other
@@ -698,6 +728,7 @@
             >. Local settings take priority over global toggles.
           </p>
           <p>
+            <code>counter=on|off|auto</code> (Paradox) ·
             <code>bubble=on|off|auto</code> (Viscous) ·
             <code>fracture=on|off|auto</code> (Graves) ·
             <code>variant=base|alt|auto</code>

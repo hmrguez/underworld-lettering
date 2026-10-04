@@ -1,4 +1,5 @@
 export interface ModifierValues {
+  counter: 'auto' | 'on' | 'off';
   bubble: 'auto' | 'on' | 'off';
   fracture: 'auto' | 'on' | 'off';
   swash: 'auto' | 'word' | 'off';
@@ -53,6 +54,7 @@ function applyModifier<K extends ModifierKey>(
   return true;
 }
 export const MODIFIERS = {
+  counter: ['auto', 'on', 'off'],
   bubble: ['auto', 'on', 'off'],
   fracture: ['auto', 'on', 'off'],
   swash: ['auto', 'word', 'off'],

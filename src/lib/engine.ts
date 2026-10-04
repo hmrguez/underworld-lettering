@@ -14,7 +14,9 @@ export type StyleId =
   | 'celeste'
   | 'violet'
   | 'graves'
-  | 'viscous';
+  | 'viscous'
+  | 'paradox';
+import { renderParadox } from './paradox.ts';
 import { renderViscous } from './viscous.ts';
 import { renderGraves } from './graves.ts';
 import { renderViolet } from './violet.ts';
@@ -56,6 +58,7 @@ interface LayoutItem {
 }
 export interface RenderOptions {
   style: StyleId;
+  hourglasses: boolean;
   bubbles: boolean;
   fractures: boolean;
   fractureIntensity: number;
@@ -174,6 +177,14 @@ export const styles: Style[] = [
     number: '09',
     description: 'Swollen soft forms · bubble cutouts',
     accent: '#8cbf6a',
+  },
+  {
+    id: 'paradox',
+    name: 'Paradox',
+    sample: 'PARADOX',
+    number: '10',
+    description: 'Massive capitals · hourglass counters',
+    accent: '#bd9aab',
   },
 ];
 function sourceGlyph(
@@ -330,6 +341,7 @@ export function render(
 ): RenderResult {
   const o: RenderOptions = {
     style: 'rat',
+    hourglasses: true,
     bubbles: true,
     fractures: true,
     fractureIntensity: 1,
@@ -358,6 +370,7 @@ export function render(
     hash = Math.imul(hash ^ ch.charCodeAt(0), 16777619) >>> 0;
   }
   const namespace = `lettering-${hash.toString(16)}`;
+  if (o.style === 'paradox') return renderParadox(ast, o, namespace, color);
   if (o.style === 'viscous') return renderViscous(ast, o, namespace, color);
   if (o.style === 'graves') return renderGraves(ast, o, namespace, color);
   if (o.style === 'violet') return renderViolet(ast, o, namespace, color);

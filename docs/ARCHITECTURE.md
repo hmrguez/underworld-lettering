@@ -54,6 +54,7 @@ R[swash=word]AT KI[dot=crown]NG
 
 Supported keys:
 
+- `counter`: `auto`, `on`, `off` (Paradox).
 - `bubble`: `auto`, `on`, `off` (Viscous).
 - `swash`: `auto`, `word`, `off`.
 - `dot`: `auto`, `crown`, `star`, `off`.
@@ -68,7 +69,7 @@ Comma-separated settings may share brackets. Global/automatic behavior is used w
 
 `render(ast, options)` returns `{ svg, width, height, hits, applied, inferred, empty }`.
 
-Options include `bubbles`, `plates`, `platePhase` (`even` by default, or `odd`), `rook`, `style`, `crown`, `swash`, `ornaments`, `texture`, `irregular`, `tracking`, `swashLength`, `color`, and `overrides`. Style IDs are `rat`, `harrow`, `baba`, `solomon`, `venator`, `celeste`, `violet`, `graves`, and `viscous`.
+Options include `hourglasses`, `bubbles`, `plates`, `platePhase` (`even` by default, or `odd`), `rook`, `style`, `crown`, `swash`, `ornaments`, `texture`, `irregular`, `tracking`, `swashLength`, `color`, and `overrides`. Style IDs are `rat`, `harrow`, `baba`, `solomon`, `venator`, `celeste`, `violet`, `graves`, `viscous`, and `paradox`.
 
 - `svg` is a complete inline SVG string.
 - `hits` contains selection metadata and reference/inferred status.
@@ -162,3 +163,13 @@ Reference luminance masks retain native fragments at full intensity. Lower inten
 `viscous-paths.json` separates source V/I/S/C/O/U, two source S forms, native O holes, and custom inferred capitals/numerals/punctuation. `extract-viscous.py` retains source contours and vertical placement; the near-degenerate 2.09 × 0.645-unit stray O contour is omitted. Custom outlines use explicit curved skeletons with swollen widths and rounded terminals. Components paint independently to union overlapping strokes; compound bowls retain even-odd counters. Q and numerals have one form; other inferred capitals offer a pressure alternate. Source S alternates by global character occurrence, independent of modifiers and source offsets; base/alt overrides select either form. V stays tall anywhere, with no inferred compact replacement.
 
 Native pair gaps reproduce VISCOUS source positions; arbitrary gaps default to 18 units, word boundaries add 72. All tracking clamps to six units of horizontal outline clearance. Native heights and exact cubic extrema determine the viewBox. Optional extra holes are fitted to sampled ink, with an eight-unit clearance allowance around their largest radius. Bubble luminance masks are namespaced and subtract through transparency. Hit rectangles remain disjoint because glyph bounds never overlap. Rendering/export uses outlines and masks only, with no fonts or image dependency.
+
+## Paradox
+
+`paradox.ts` dispatches through the shared renderer after defaults, namespace construction and color validation. `hourglasses` defaults true; `counter=auto|on|off` preserves interface > inline > automatic/global, including explicit interface auto. Text edits still clear overrides. The selector, preset, comparison and example names use the same editable composition.
+
+`extract-paradox.py` splits seven source paths into individual exterior/counter contours without tracing or changing their native coordinates. `paradox-paths.json` holds source P/A/R/D/O/X, two A forms, and explicit custom inferred capitals/numerals/punctuation. Source A forms alternate by global character occurrence independent of syntax offsets; base/alt select either. All other letters have one form. Inferred components paint separately so overlapping bars union without even-odd cancellation. Bounds use the existing cubic extrema helper. The original source clips O's last 0.083 units at y=432; composition retains its complete outline and bounds.
+
+Automatic counters apply to A/O and inferred Q/zero only. Solid source P/R/D and inferred B/6/8/9 receive counters only when explicitly requested. Native A/O counters are unchanged. Other eligible counters remap the source O template, scale it for short P/R/6/9 bowls and validate sampled contour points with an eight-unit ink halo during extraction. Narrow/open glyphs do not support counters and have no counter dropdown. All cuts subtract through namespaced luminance masks; disabling counters restores the solid envelope without canvas paint.
+
+Native pair bearings preserve PARADOX positions, including P's overhanging shoulder and tucked A foot. Other pairs use a 20-unit bounds gap. Dense sampled side profiles enforce six units of horizontal ink clearance at tight tracking; word boundaries add 80 units. Hit rectangles partition adjacent ink centers and remain disjoint despite overlapping outline bounds. Exact bounds, selection regions and margins define the viewBox. No full wordmark, font or external asset is embedded in live rendering or export.
