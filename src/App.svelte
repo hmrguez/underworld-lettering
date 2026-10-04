@@ -152,7 +152,7 @@
     </div>
   </header>
   <main>
-    <aside class="controls">
+    <section class="name-panel" aria-label="Name input">
       <div class="section-label">01 / THE LETTERS</div>
       <label for="name" class="input-label">Give it a name.</label>
       <textarea
@@ -171,13 +171,80 @@
       {#if ast.errors.length}<div class="errors" role="alert">
           {#each ast.errors as error (error)}<p>{error.message}</p>{/each}
         </div>{/if}
-      <div class="section-label styles-label">02 / THE HAND</div>
+    </section>
+    <section class="preview-stage" aria-label="Live lettering preview">
+      <div class="bench-toolbar">
+        <span
+          ><span class="live-dot"></span>
+          {pack.name.toUpperCase()} / LIVE PREVIEW</span
+        >
+        <div>
+          <button
+            class:pressed={compare}
+            onclick={() => (compare = !compare)}
+            aria-pressed={compare}>Reference</button
+          ><button
+            class:pressed={guides}
+            onclick={() => (guides = !guides)}
+            aria-pressed={guides}>Guides <span>⌗</span></button
+          >
+        </div>
+      </div>
+      <div class="canvas" class:guides class:baba={style === 'baba'}>
+        <span class="corner top-left"></span><span class="corner top-right"
+        ></span><span class="corner bottom-left"></span><span
+          class="corner bottom-right"
+        ></span>
+        <span class="canvas-meta"
+          >SPECIMEN {pack.number} <span> / </span>
+          {compare ? 'REFERENCE + COMPOSITION' : 'CUSTOM LETTERING'}</span
+        >
+        {#if result.empty}<p class="empty">
+            Your next name starts here.<small
+              >Type a short name in the box.</small
+            >
+          </p>{:else}
+          <div class="composition" class:split={compare}>
+            <!-- svelte-ignore a11y_no_noninteractive_element_interactions (Events delegate to focusable SVG glyph buttons; the letter bar provides equivalent controls.) -->
+            <div
+              class="render-wrap"
+              role="group"
+              aria-label="Select a letter in the preview"
+              onclick={select}
+              onkeydown={selectKey}
+            >
+              {@html result.svg}{#if compare}<span class="image-label"
+                  >YOUR COMPOSITION</span
+                >{/if}
+            </div>
+            {#if compare}<div class="reference-wrap">
+                <img
+                  src={`${import.meta.env.BASE_URL}references/${style === 'paige' ? 'paige' : style === 'paradox' ? 'paradox' : style === 'viscous' ? 'viscous' : style === 'rat' ? 'ratking' : style === 'harrow' ? 'nurse' : style === 'solomon' ? 'solomon' : style === 'venator' ? 'venator' : style === 'celeste' ? 'celeste' : style === 'graves' ? 'graves' : style === 'violet' ? 'violet' : 'baba'}-wordmark.svg`}
+                  alt={`${pack.name} source wordmark`}
+                /><span class="image-label">SOURCE WORDMARK</span>
+              </div>{/if}
+          </div>
+        {/if}
+        <div class="canvas-footer">
+          <span
+            >{ast.glyphs.length} GLYPHS <span>·</span>
+            {ast.words.length} WORDS</span
+          ><span>SVG / SCALABLE OUTLINES</span>
+        </div>
+      </div>
+    </section>
+    <section class="style-picker" aria-label="Lettering styles">
+      <div class="picker-heading">
+        <div class="section-label styles-label">02 / THE HAND</div>
+        <span class="picker-count">{styles.length} DISTINCT HANDS</span>
+      </div>
       <div class="style-list">
         {#each styles as s (s.id)}
           <button
             class:active={style === s.id}
             class="style-card"
             onclick={() => switchStyle(s.id)}
+            title={s.description}
             aria-pressed={style === s.id}
           >
             <span class="style-number">{s.number}</span>
@@ -194,6 +261,8 @@
           </button>
         {/each}
       </div>
+    </section>
+    <aside class="detail-panel" aria-label="Composition settings">
       <div class="section-label rules-label">03 / THE DETAILS</div>
       <div class="rules">
         {#if style === 'rat'}
@@ -423,66 +492,10 @@
         </div>
       </div>
     </aside>
-    <section class="workbench" aria-label="Lettering preview and overrides">
-      <div class="bench-toolbar">
-        <span
-          ><span class="live-dot"></span>
-          {pack.name.toUpperCase()} / LIVE PREVIEW</span
-        >
-        <div>
-          <button
-            class:pressed={compare}
-            onclick={() => (compare = !compare)}
-            aria-pressed={compare}>Reference</button
-          ><button
-            class:pressed={guides}
-            onclick={() => (guides = !guides)}
-            aria-pressed={guides}>Guides <span>⌗</span></button
-          >
-        </div>
-      </div>
-      <div class="canvas" class:guides class:baba={style === 'baba'}>
-        <span class="corner top-left"></span><span class="corner top-right"
-        ></span><span class="corner bottom-left"></span><span
-          class="corner bottom-right"
-        ></span>
-        <span class="canvas-meta"
-          >SPECIMEN {pack.number} <span> / </span>
-          {compare ? 'REFERENCE + COMPOSITION' : 'CUSTOM LETTERING'}</span
-        >
-        {#if result.empty}<p class="empty">
-            Your next name starts here.<small
-              >Type a short name in the box.</small
-            >
-          </p>{:else}
-          <div class="composition" class:split={compare}>
-            <!-- svelte-ignore a11y_no_noninteractive_element_interactions (Events delegate to focusable SVG glyph buttons; the letter bar provides equivalent controls.) -->
-            <div
-              class="render-wrap"
-              role="group"
-              aria-label="Select a letter in the preview"
-              onclick={select}
-              onkeydown={selectKey}
-            >
-              {@html result.svg}{#if compare}<span class="image-label"
-                  >YOUR COMPOSITION</span
-                >{/if}
-            </div>
-            {#if compare}<div class="reference-wrap">
-                <img
-                  src={`${import.meta.env.BASE_URL}references/${style === 'paige' ? 'paige' : style === 'paradox' ? 'paradox' : style === 'viscous' ? 'viscous' : style === 'rat' ? 'ratking' : style === 'harrow' ? 'nurse' : style === 'solomon' ? 'solomon' : style === 'venator' ? 'venator' : style === 'celeste' ? 'celeste' : style === 'graves' ? 'graves' : style === 'violet' ? 'violet' : 'baba'}-wordmark.svg`}
-                  alt={`${pack.name} source wordmark`}
-                /><span class="image-label">SOURCE WORDMARK</span>
-              </div>{/if}
-          </div>
-        {/if}
-        <div class="canvas-footer">
-          <span
-            >{ast.glyphs.length} GLYPHS <span>·</span>
-            {ast.words.length} WORDS</span
-          ><span>SVG / SCALABLE OUTLINES</span>
-        </div>
-      </div>
+    <section
+      class="workbench"
+      aria-label="Letter selection and composition notes"
+    >
       <div class="under-canvas">
         <span class="hint">↖ Select a letter to override its details.</span
         ><button class="reset" onclick={() => switchStyle(style)}

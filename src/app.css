@@ -120,10 +120,6 @@ main {
   grid-template-columns: 330px 1fr;
   min-height: calc(100vh - 155px);
 }
-.controls {
-  padding: 32px 28px 32px 40px;
-  border-right: 1px solid var(--line);
-}
 .section-label {
   font:
     11px 'IBM Plex Mono',
@@ -739,47 +735,166 @@ footer a {
   color: #151714;
   margin-left: 24px;
 }
-@media (min-width: 1500px) {
+/* The specimen cabinet sits beside the press; the live proof leads on phones. */
+main {
+  grid-template-columns: 420px minmax(0, 1fr);
+  grid-template-areas:
+    'name preview'
+    'styles preview'
+    'details extras';
+  grid-template-rows: auto auto 1fr;
+  align-items: start;
+}
+.name-panel,
+.style-picker,
+.detail-panel {
+  min-width: 0;
+  padding: 20px 24px 0;
+  border-right: 1px solid var(--line);
+}
+.name-panel {
+  grid-area: name;
+}
+.input-label {
+  margin: 8px 0;
+  font-size: 26px;
+}
+textarea {
+  min-height: 64px;
+  height: 64px;
+  padding: 12px;
+}
+.style-picker {
+  grid-area: styles;
+  padding-bottom: 24px;
+}
+.picker-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.styles-label,
+.rules-label {
+  margin: 0;
+}
+.picker-count {
+  font:
+    9px 'IBM Plex Mono',
+    monospace;
+  color: #737969;
+  letter-spacing: 0.5px;
+}
+.style-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.style-card {
+  min-height: 82px;
+  padding: 18px 8px 9px;
+}
+.style-number {
+  top: 6px;
+  left: 8px;
+  font-size: 8px;
+}
+.style-sample {
+  width: 100%;
+  height: 32px;
+  margin: 0 auto 6px;
+}
+.style-info strong {
+  font-size: 15px;
+}
+.style-info small {
+  display: none;
+}
+.radio-dot {
+  width: 7px;
+  height: 7px;
+  right: 8px;
+  bottom: 14px;
+}
+.active .radio-dot {
+  border-width: 2px;
+}
+.detail-panel {
+  grid-area: details;
+  padding-top: 20px;
+  padding-bottom: 28px;
+  border-top: 1px solid var(--line);
+}
+.rules-label {
+  margin-bottom: 12px;
+}
+.preview-stage {
+  grid-area: preview;
+  min-width: 0;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #151714;
+  padding: 24px 28px 0;
+}
+.canvas {
+  height: clamp(320px, calc(100svh - 300px), 480px);
+  min-height: 0;
+}
+.workbench {
+  grid-area: extras;
+  padding: 0 28px 28px;
+}
+.bench-toolbar {
+  gap: 10px;
+}
+.under-canvas {
+  margin-top: 14px;
+}
+@media (min-width: 1400px) {
   main {
-    grid-template-columns: 370px 1fr;
+    grid-template-columns: 480px minmax(0, 1fr);
   }
-  .controls {
-    padding-right: 36px;
+  .name-panel,
+  .style-picker,
+  .detail-panel {
+    padding-left: 36px;
+    padding-right: 28px;
   }
-  .canvas {
-    height: 580px;
-  }
-  .style-card {
-    min-height: 122px;
+  .preview-stage {
+    padding: 24px 36px 0;
   }
   .workbench {
-    padding: 34px 45px;
+    padding: 0 36px 28px;
   }
 }
-@media (max-width: 1000px) {
+@media (max-width: 1100px) {
   header {
     padding: 0 24px;
   }
-  .edition {
-    display: none;
-  }
+  .edition,
   .header-right > span {
     display: none;
   }
   main {
-    grid-template-columns: 280px 1fr;
+    grid-template-columns: 360px minmax(0, 1fr);
   }
-  .controls {
-    padding: 26px 20px 26px 24px;
+  .name-panel,
+  .style-picker,
+  .detail-panel {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .preview-stage {
+    padding: 24px 20px 0;
   }
   .workbench {
-    padding: 26px 22px;
+    padding: 0 20px 28px;
   }
   .bench-toolbar {
+    flex-wrap: wrap;
     font-size: 9px;
-  }
-  .bench-toolbar > div {
-    gap: 9px;
+    margin-bottom: 12px;
   }
   .canvas-meta,
   .canvas-footer {
@@ -795,23 +910,25 @@ footer a {
     flex-direction: column;
     gap: 12px;
   }
-  .try-strip {
-    gap: 6px;
-  }
-  .hint {
+  .hint,
+  .reset {
     font-size: 12px;
   }
 }
-@media (max-width: 720px) {
+@media (max-width: 800px) {
+  :root {
+    scroll-padding-top: calc(clamp(150px, 26svh, 220px) + 80px);
+  }
   header {
-    height: 76px;
-    padding: 0 18px;
+    height: 68px;
+    padding: 0 16px;
   }
   .brand {
     font-size: 24px;
+    gap: 8px;
   }
   .brand-symbol {
-    font-size: 30px;
+    font-size: 28px;
   }
   .header-right .export {
     font-size: 15px;
@@ -819,94 +936,98 @@ footer a {
     margin-left: 0;
   }
   .export span {
-    margin-left: 10px;
+    margin-left: 8px;
   }
   main {
-    display: flex;
-    flex-direction: column;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'name' 'preview' 'styles' 'details' 'extras';
+    grid-template-rows: auto;
+    min-height: 0;
   }
-  .controls {
+  .name-panel,
+  .style-picker,
+  .detail-panel {
     border-right: 0;
-    border-bottom: 1px solid var(--line);
-    padding: 25px 20px;
+    padding: 20px 16px;
+  }
+  .name-panel {
+    padding-bottom: 12px;
   }
   .input-label {
-    font-size: 25px;
-    margin-top: 12px;
+    font-size: 24px;
+    margin: 7px 0;
   }
   textarea {
-    min-height: 85px;
-    height: 85px;
-  }
-  .styles-label {
-    margin-top: 22px;
-  }
-  .style-list {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 7px;
-  }
-  .style-card {
-    padding: 9px;
-    min-height: 120px;
-  }
-  .style-sample {
-    width: 100%;
-    height: 45px;
-    margin-top: 12px;
-  }
-  .style-info strong {
+    min-height: 64px;
+    height: 64px;
     font-size: 16px;
+    padding: 8px 12px;
   }
-  .style-info small {
-    display: none;
+  .preview-stage {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    box-shadow: 0 8px 18px #0003;
   }
-  .radio-dot {
-    right: 9px;
-    bottom: 12px;
-    width: 8px;
-    height: 8px;
+  .bench-toolbar {
+    flex-wrap: nowrap;
+    margin-bottom: 8px;
+    letter-spacing: 0;
   }
-  .style-number {
-    font-size: 9px;
-    top: 7px;
-    left: 7px;
+  .bench-toolbar > div {
+    gap: 12px;
   }
-  .rules-label {
-    margin-top: 22px;
-  }
-  .rules {
-    grid-template-columns: 1fr 1fr;
-    gap: 0 20px;
-  }
-  .toggle {
-    font-size: 15px;
-  }
-  .toggle small {
-    font-size: 12px;
-  }
-  .slider-label {
-    margin-top: 12px;
-  }
-  .workbench {
-    padding: 23px 20px 30px;
+  .bench-toolbar button {
+    font-size: 11px;
   }
   .canvas {
-    height: 360px;
-    min-height: 0;
+    height: clamp(150px, 26svh, 220px);
+  }
+  .canvas-meta {
+    top: 16px;
+  }
+  .canvas-footer {
+    bottom: 16px;
+  }
+  .canvas-footer > span:last-child {
+    display: none;
+  }
+  .composition {
+    width: 88%;
+    height: 72%;
+    padding-top: 12px;
   }
   .composition.split {
     flex-direction: column;
+    gap: 8px;
+    padding-top: 12px;
   }
   .split > div {
     width: 100%;
     height: 45%;
   }
-  .canvas-meta,
-  .canvas-footer {
+  .composition.split .image-label {
     font-size: 8px;
+    bottom: -6px;
   }
-  .canvas-footer > span:last-child {
-    display: none;
+  .style-list {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  }
+  .style-card {
+    min-height: 88px;
+  }
+  .rules {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 20px;
+  }
+  .toggle {
+    font-size: 15px;
+    gap: 10px;
+  }
+  .toggle small {
+    font-size: 12px;
+  }
+  .workbench {
+    padding: 0 16px 24px;
   }
   .glyph-bar {
     gap: 4px;
@@ -916,29 +1037,11 @@ footer a {
     font-size: 18px;
     padding: 6px 8px;
   }
-  .try-strip button {
-    font-size: 10px;
-  }
-  .engine-notes {
-    padding: 20px 0;
-  }
   footer {
-    padding: 18px 20px;
+    padding: 18px 16px;
     gap: 15px;
     flex-wrap: wrap;
     font-size: 9px;
-  }
-  .bench-toolbar {
-    font-size: 9px;
-  }
-  .bench-toolbar button {
-    font-size: 11px;
-  }
-  .hint {
-    font-size: 12px;
-  }
-  .reset {
-    font-size: 12px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -948,7 +1051,9 @@ footer a {
 }
 @media print {
   header,
-  .controls,
+  .name-panel,
+  .style-picker,
+  .detail-panel,
   .bench-toolbar,
   .under-canvas,
   .glyph-bar,
@@ -958,7 +1063,9 @@ footer a {
   footer {
     display: none;
   }
+  .preview-stage,
   .workbench {
+    position: static;
     padding: 0;
   }
   .canvas {
