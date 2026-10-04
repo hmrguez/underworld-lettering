@@ -54,6 +54,7 @@ R[swash=word]AT KI[dot=crown]NG
 
 Supported keys:
 
+- `bubble`: `auto`, `on`, `off` (Viscous).
 - `swash`: `auto`, `word`, `off`.
 - `dot`: `auto`, `crown`, `star`, `off`.
 - `variant`: `auto`, `base`, `alt`.
@@ -67,7 +68,7 @@ Comma-separated settings may share brackets. Global/automatic behavior is used w
 
 `render(ast, options)` returns `{ svg, width, height, hits, applied, inferred, empty }`.
 
-Options include `plates`, `platePhase` (`even` by default, or `odd`), `rook`, `style`, `crown`, `swash`, `ornaments`, `texture`, `irregular`, `tracking`, `swashLength`, `color`, and `overrides`. Style IDs are `rat`, `harrow`, `baba`, `solomon`, `venator`, `celeste`, `violet`, and `graves`.
+Options include `bubbles`, `plates`, `platePhase` (`even` by default, or `odd`), `rook`, `style`, `crown`, `swash`, `ornaments`, `texture`, `irregular`, `tracking`, `swashLength`, `color`, and `overrides`. Style IDs are `rat`, `harrow`, `baba`, `solomon`, `venator`, `celeste`, `violet`, `graves`, and `viscous`.
 
 - `svg` is a complete inline SVG string.
 - `hits` contains selection metadata and reference/inferred status.
@@ -153,3 +154,11 @@ Disjoint transparent hit rectangles partition the preview horizontally; visible 
 The first occurrence of each source letter selects its reference fracture mask. Other occurrences choose one of three patterns from character and occurrence, independent of syntax offsets or unrelated characters. Extraction densely samples each glyph's contours, finds connected horizontal/vertical ink runs, and fits restrained jagged cuts within those runs. Cuts stop before traversing the entire run; widths are capped at 4.2 units. Component counters use local even-odd filling; overlapping components remain solid.
 
 Reference luminance masks retain native fragments at full intensity. Lower intensity grows their mask ink only within the reconstructed envelope. Inferred/repeat masks subtract the fitted paths. All black/white fills belong to definitions; visible lettering contains no background paint. Clip/mask IDs include the deterministic composition namespace and glyph ID. Identical specimens intentionally share equivalent definitions, following the existing engine contract. Exports remain outlines only, with no font or image dependency.
+
+## Viscous
+
+`viscous.ts` dispatches through the shared engine. `bubbles` defaults true; `bubble=auto|on|off` uses interface > inline > global precedence, including explicit interface auto. Automatic bubbles apply only to O; explicit on selects three native O holes or a small ink-fitted inferred hole on another character. No unsupported swash, dot, wear or crown controls are exposed.
+
+`viscous-paths.json` separates source V/I/S/C/O/U, two source S forms, native O holes, and custom inferred capitals/numerals/punctuation. `extract-viscous.py` retains source contours and vertical placement; the near-degenerate 2.09 × 0.645-unit stray O contour is omitted. Custom outlines use explicit curved skeletons with swollen widths and rounded terminals. Components paint independently to union overlapping strokes; compound bowls retain even-odd counters. Q and numerals have one form; other inferred capitals offer a pressure alternate. Source S alternates by global character occurrence, independent of modifiers and source offsets; base/alt overrides select either form. V stays tall anywhere, with no inferred compact replacement.
+
+Native pair gaps reproduce VISCOUS source positions; arbitrary gaps default to 18 units, word boundaries add 72. All tracking clamps to six units of horizontal outline clearance. Native heights and exact cubic extrema determine the viewBox. Optional extra holes are fitted to sampled ink, with an eight-unit clearance allowance around their largest radius. Bubble luminance masks are namespaced and subtract through transparency. Hit rectangles remain disjoint because glyph bounds never overlap. Rendering/export uses outlines and masks only, with no fonts or image dependency.

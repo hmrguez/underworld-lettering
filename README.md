@@ -10,7 +10,7 @@ Built with **Svelte 5**, **Vite**, **TypeScript 7**, and **Bun**, with a small l
 
 ## Features
 
-- Eight distinct lettering packs: **Rat King**, **Nurse Harrow**, **Baba**, **Solomon**, **Venator**, **Celeste**, **Violet**, and **Graves**.
+- Nine distinct lettering packs: **Rat King**, **Nurse Harrow**, **Baba**, **Solomon**, **Venator**, **Celeste**, **Violet**, **Graves**, and **Viscous**.
 - Instant previews for names of up to 24 letters or digits.
 - An R leg that adapts to the width of its word.
 - Crowns, decorative I dots, alternate letters, uneven heights, spacing, and ink controls.
@@ -74,6 +74,9 @@ AV[variant=alt]A
 C[initial=off,swash=off]ELESTE
 S[initial=on,ornament=off]TAR
 G[fracture=off]RAV[fracture=on]ES
+VISCO[bubble=off]US
+B[bubble=on]UBBLE
+S[variant=alt]OFT
 ```
 
 | Setting    | Values                         |
@@ -84,6 +87,7 @@ G[fracture=off]RAV[fracture=on]ES
 | `ornament` | `auto`, `on`, `off`            |
 | `plate`    | `auto`, `on`, `off`            |
 | `initial`  | `auto`, `on`, `off`            |
+| `bubble`   | `auto`, `on`, `off` (Viscous)  |
 | `fracture` | `auto`, `on`, `off` (Graves)   |
 | `rook`     | `auto`, `on`, `off`            |
 
@@ -91,7 +95,7 @@ Multiple settings can share a bracket, separated by commas. Settings apply when 
 
 Input supports A–Z, digits, spaces, hyphens, and apostrophes. Lowercase is normalized to uppercase. Invalid syntax produces a diagnostic while valid letters continue to render.
 
-## Eight hands
+## Nine hands
 
 ### Rat King
 
@@ -162,6 +166,7 @@ SVG → instant preview / export
 - `src/lib/venator.ts`, `src/lib/venator-paths.json` and `scripts/extract-venator.py`: Venator contours, inferred geometry, measured ink profiles and independent ornaments.
 - `src/lib/violet.ts`, `src/lib/violet-paths.json` and `scripts/extract-violet.py`: split Violet outlines, inferred pressure ribbons, contextual shaping and controlled script joins.
 - `src/lib/celeste.ts`, `src/lib/celeste-paths.json` and `scripts/extract-celeste.py`: separate Celeste contours, custom inferred glyphs, contextual initials and adaptive ribbon curves.
+- `src/lib/viscous.ts`, `src/lib/viscous-paths.json` and `scripts/extract-viscous.py`: extracted soft source forms, custom inferred outlines and fitted transparent bubble holes.
 - `src/lib/graves.ts`, `src/lib/graves-paths.json` and `scripts/extract-graves.py`: reference fragments, reconstructed intact envelopes, inferred heavy serifs and ink-fitted fractures.
 - `src/lib/fallback-paths.json`: precomputed fallback font outlines.
 - `scripts/design-rat-glyphs.cjs`: regenerates the inferred Rat King capitals.
@@ -192,12 +197,21 @@ Intact envelopes, the shared R/A, V/E and E/S boundaries, spacing and repeat pat
 
 ![Graves composed from editable glyph fragments with transparent reference fractures](docs/screenshots/graves.png)
 
+### Viscous
+
+Thick, soft, uneven masses with a sagging V, pinched I, open C, two unequal S forms and three bubble cutouts inside a solid O. V, I, S, C, O and U retain extracted source outlines and native heights. S forms alternate by occurrence; `variant=base|alt|auto` selects them directly. Unseen capitals, digits and punctuation are custom swollen outlines made from explicit curved skeletons, not a rounded fallback font. Inferred capitals except Q also offer a restrained pressure alternate.
+
+**Bubble cutouts** enables the three native O holes globally. `bubble=off` removes them locally; `bubble=on` works with the global switch off and adds a small fitted hole on other characters. Extra holes are inferred and kept within thick ink. Transparent masks work over any export background. Interface overrides take precedence, including explicit automatic values; editing text clears them. Arbitrary spacing is reconstructed with a six-unit minimum ink-bounds gap. Unseen forms are an interpretation, not Valve's complete alphabet.
+
+![Viscous editable composition with native transparent O bubbles](docs/screenshots/viscous.png)
+
 ## Scope and fidelity
 
 This is a personal v1 experiment, not a complete reconstructed font family. Original hero names are close to the references. Letters absent from those references are inferred, and the interface labels them. Spacing and some ornament placement are reconstructed. There is no manual Bézier editor, font uploader, or OpenType font export.
 
 ## References and attribution
 
+- Viscous artwork: **Valve**, [isolated Viscous wordmark](https://deadlockskins.gg/hero-wordmarks/viscous.svg) linked from [DeadlockSkins.gg’s Viscous page](https://deadlockskins.gg/heroes/viscous). Actual vector contents were visually inspected. Extraction and inference limits are recorded in [visual verification](docs/VISUAL-VERIFICATION.md).
 - Graves artwork: **Valve**, [official Graves poster](https://cdn.fastly.steamstatic.com/apps/deadlock/images/react/oldgods/splash_graves.png) on [Old Gods, New Blood](https://www.playdeadlock.com/oldgods); [isolated necro wordmark](https://deadlockskins.gg/hero-wordmarks/necro.svg) via [DeadlockSkins.gg](https://deadlockskins.gg/blog/deadlock-old-gods-new-blood-update). Actual poster and vector contents were inspected. See [visual verification](docs/VISUAL-VERIFICATION.md) for reconstruction boundaries and evidence.
 
 - Violet artwork: **Valve**, [official Violet poster](https://cdn.fastly.steamstatic.com/apps/deadlock/images/react/cityneversleeps/hero_violet.webp) on [City Never Sleeps](https://www.playdeadlock.com/cityneversleeps); [isolated artist wordmark](https://deadlockskins.gg/hero-art-provisional/artist-wordmark.svg) via [DeadlockSkins.gg](https://deadlockskins.gg/blog/deadlock-city-never-sleeps-update). Actual image contents were verified. See [visual verification](docs/VISUAL-VERIFICATION.md) for provenance and evidence.

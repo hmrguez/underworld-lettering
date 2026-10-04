@@ -13,7 +13,9 @@ export type StyleId =
   | 'venator'
   | 'celeste'
   | 'violet'
-  | 'graves';
+  | 'graves'
+  | 'viscous';
+import { renderViscous } from './viscous.ts';
 import { renderGraves } from './graves.ts';
 import { renderViolet } from './violet.ts';
 import { renderCeleste } from './celeste.ts';
@@ -54,6 +56,7 @@ interface LayoutItem {
 }
 export interface RenderOptions {
   style: StyleId;
+  bubbles: boolean;
   fractures: boolean;
   fractureIntensity: number;
   crown: boolean;
@@ -163,6 +166,14 @@ export const styles: Style[] = [
     number: '08',
     description: 'Heavy broken serifs · fitted fractures',
     accent: '#c9d751',
+  },
+  {
+    id: 'viscous',
+    name: 'Viscous',
+    sample: 'VISCOUS',
+    number: '09',
+    description: 'Swollen soft forms · bubble cutouts',
+    accent: '#8cbf6a',
   },
 ];
 function sourceGlyph(
@@ -319,6 +330,7 @@ export function render(
 ): RenderResult {
   const o: RenderOptions = {
     style: 'rat',
+    bubbles: true,
     fractures: true,
     fractureIntensity: 1,
     crown: true,
@@ -346,6 +358,7 @@ export function render(
     hash = Math.imul(hash ^ ch.charCodeAt(0), 16777619) >>> 0;
   }
   const namespace = `lettering-${hash.toString(16)}`;
+  if (o.style === 'viscous') return renderViscous(ast, o, namespace, color);
   if (o.style === 'graves') return renderGraves(ast, o, namespace, color);
   if (o.style === 'violet') return renderViolet(ast, o, namespace, color);
   if (o.style === 'celeste') return renderCeleste(ast, o, namespace, color);

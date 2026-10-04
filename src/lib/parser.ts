@@ -1,4 +1,5 @@
 export interface ModifierValues {
+  bubble: 'auto' | 'on' | 'off';
   fracture: 'auto' | 'on' | 'off';
   swash: 'auto' | 'word' | 'off';
   dot: 'auto' | 'crown' | 'star' | 'off';
@@ -52,6 +53,7 @@ function applyModifier<K extends ModifierKey>(
   return true;
 }
 export const MODIFIERS = {
+  bubble: ['auto', 'on', 'off'],
   fracture: ['auto', 'on', 'off'],
   swash: ['auto', 'word', 'off'],
   dot: ['auto', 'crown', 'star', 'off'],
