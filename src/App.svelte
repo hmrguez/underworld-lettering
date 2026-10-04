@@ -5,7 +5,15 @@
   import type { StyleId } from './lib/engine.ts';
   let style = $state<StyleId>('rat'),
     source = $state('RAT KING'),
+    fractures = $state(true),
+    fractureIntensity = $state(1),
     crown = $state(true),
+    initial = $state(true),
+    diamonds = $state(true),
+    inscription = $state(false),
+    plates = $state(true),
+    platePhase = $state<'odd' | 'even'>('even'),
+    rook = $state(true),
     swash = $state(true),
     ornaments = $state(true),
     texture = $state(false),
@@ -23,7 +31,15 @@
   let result = $derived(
     render(ast, {
       style,
+      fractures,
+      fractureIntensity,
       crown,
+      initial,
+      diamonds,
+      inscription,
+      plates,
+      platePhase,
+      rook,
       swash,
       ornaments,
       texture,
@@ -45,7 +61,15 @@
     swashLength = 1;
     texture = false;
     irregular = true;
+    fractures = true;
+    fractureIntensity = 1;
     crown = true;
+    initial = true;
+    diamonds = true;
+    inscription = false;
+    plates = true;
+    platePhase = 'even';
+    rook = true;
     swash = true;
     ornaments = true;
   }
@@ -195,6 +219,100 @@
             ><input type="checkbox" bind:checked={swash} /><span class="switch"
             ></span></label
           >
+        {:else if style === 'graves'}
+          <label class="toggle"
+            ><span
+              >Structural fractures <small>Transparent breaks in the ink</small
+              ></span
+            ><input type="checkbox" bind:checked={fractures} /><span
+              class="switch"
+            ></span></label
+          >
+        {:else if style === 'violet'}
+          <label class="toggle"
+            ><span
+              >Extended strokes <small
+                >V sweep, t crossbar and word endings</small
+              ></span
+            ><input type="checkbox" bind:checked={swash} /><span class="switch"
+            ></span></label
+          >
+          <label class="toggle"
+            ><span
+              >Subtle brush wear <small
+                >Selective transparent terminal scratches</small
+              ></span
+            ><input type="checkbox" bind:checked={texture} /><span
+              class="switch"
+            ></span></label
+          >
+        {:else if style === 'celeste'}
+          <label class="toggle"
+            ><span
+              >Decorated initial <small>First letter of the name</small></span
+            ><input type="checkbox" bind:checked={initial} /><span
+              class="switch"
+            ></span></label
+          >
+          <label class="toggle"
+            ><span
+              >Double underline <small>Follows each word’s width</small></span
+            ><input type="checkbox" bind:checked={swash} /><span class="switch"
+            ></span></label
+          >
+          <label class="toggle"
+            ><span>Stars and interior details</span><input
+              type="checkbox"
+              bind:checked={ornaments}
+            /><span class="switch"></span></label
+          >
+        {:else if style === 'venator'}
+          <label class="toggle"
+            ><span
+              >Contextual V initial <small
+                >Hooked reference V at word starts</small
+              ></span
+            ><input type="checkbox" bind:checked={initial} /><span
+              class="switch"
+            ></span></label
+          >
+          <label class="toggle"
+            ><span
+              >Diamonds <small>Independent pair beneath the name</small></span
+            ><input type="checkbox" bind:checked={diamonds} /><span
+              class="switch"
+            ></span></label
+          >
+          <label class="toggle"
+            ><span
+              >XLVIII inscription <small>Reference-specific · optional</small
+              ></span
+            ><input type="checkbox" bind:checked={inscription} /><span
+              class="switch"
+            ></span></label
+          >
+        {:else if style === 'solomon'}
+          <label class="toggle"
+            ><span
+              >Alternating plates <small>Restart with each word</small></span
+            ><input type="checkbox" bind:checked={plates} /><span class="switch"
+            ></span></label
+          >
+          <label
+            >Plate phase <select bind:value={platePhase}
+              ><option value="even">Even letters · 2, 4, 6</option><option
+                value="odd">Odd letters · 1, 3, 5</option
+              ></select
+            ></label
+          >
+          <label class="toggle"
+            ><span
+              >Rook mark <small
+                >First L, otherwise middle letter, per word</small
+              ></span
+            ><input type="checkbox" bind:checked={rook} /><span class="switch"
+            ></span></label
+          >
         {:else}
           <label class="toggle"
             ><span>Folk ornaments <small>Crown and side flourishes</small></span
@@ -204,6 +322,20 @@
           >
         {/if}
       </div>
+      {#if style === 'graves'}<label
+          class="slider-label"
+          for="fracture-intensity"
+          ><span>Fracture intensity</span><output
+            >{Math.round(fractureIntensity * 100)}%</output
+          ></label
+        ><input
+          id="fracture-intensity"
+          type="range"
+          min="0.4"
+          max="1"
+          step="0.05"
+          bind:value={fractureIntensity}
+        />{/if}
       <label class="slider-label" for="spacing"
         ><span>Letter spacing</span><output
           >{tracking > 0 ? '+' : ''}{tracking}</output
@@ -216,7 +348,9 @@
         step="1"
         bind:value={tracking}
       />
-      {#if style === 'rat' && swash}<label class="slider-label" for="length"
+      {#if (style === 'rat' || style === 'celeste' || style === 'violet') && swash}<label
+          class="slider-label"
+          for="length"
           ><span>Swash reach</span><output
             >{Number(swashLength).toFixed(2)}×</output
           ></label
@@ -294,7 +428,7 @@
             </div>
             {#if compare}<div class="reference-wrap">
                 <img
-                  src={`${import.meta.env.BASE_URL}references/${style === 'rat' ? 'ratking' : style === 'harrow' ? 'nurse' : 'baba'}-wordmark.svg`}
+                  src={`${import.meta.env.BASE_URL}references/${style === 'rat' ? 'ratking' : style === 'harrow' ? 'nurse' : style === 'solomon' ? 'solomon' : style === 'venator' ? 'venator' : style === 'celeste' ? 'celeste' : style === 'graves' ? 'graves' : style === 'violet' ? 'violet' : 'baba'}-wordmark.svg`}
                   alt={`${pack.name} source wordmark`}
                 /><span class="image-label">SOURCE WORDMARK</span>
               </div>{/if}
@@ -329,7 +463,7 @@
             <h2>{selectedGlyph.char} <span>Local overrides</span></h2>
           </div>
           <div class="override-fields">
-            {#if selectedGlyph.char === 'R'}<label
+            {#if selectedGlyph.char === 'R' && style !== 'solomon' && style !== 'venator' && style !== 'celeste' && style !== 'violet' && style !== 'graves'}<label
                 >Swash<select
                   value={overrides[selectedGlyph.id]?.swash ??
                     selectedGlyph.modifiers.swash ??
@@ -340,7 +474,7 @@
                   ><option value="off">Off</option></select
                 ></label
               >{/if}
-            {#if selectedGlyph.char === 'I'}<label
+            {#if selectedGlyph.char === 'I' && style !== 'solomon' && style !== 'venator' && style !== 'celeste' && style !== 'violet' && style !== 'graves'}<label
                 >Dot<select
                   value={overrides[selectedGlyph.id]?.dot ??
                     selectedGlyph.modifiers.dot ??
@@ -353,17 +487,126 @@
                   ></select
                 ></label
               >{/if}
-            <label
-              >Letter variant<select
-                value={overrides[selectedGlyph.id]?.variant ??
-                  selectedGlyph.modifiers.variant ??
-                  'auto'}
-                onchange={(e) => override('variant', e.currentTarget.value)}
-                ><option value="auto">Automatic</option><option value="base"
-                  >Base</option
-                ><option value="alt">Alternate</option></select
-              ></label
-            >
+            {#if style === 'graves'}<label
+                >Fracture<select
+                  value={overrides[selectedGlyph.id]?.fracture ??
+                    selectedGlyph.modifiers.fracture ??
+                    'auto'}
+                  onchange={(e) => override('fracture', e.currentTarget.value)}
+                  ><option value="auto">Automatic</option><option value="off"
+                    >Intact</option
+                  ><option value="on">Fractured</option></select
+                ></label
+              >{/if}
+            {#if style === 'violet'}
+              {#each ['initial', 'swash', 'ornament', 'variant'] as key (key)}
+                <label
+                  >{key === 'initial'
+                    ? 'Capital form'
+                    : key === 'swash'
+                      ? 'Extended stroke'
+                      : key === 'ornament'
+                        ? 'Brush wear'
+                        : 'Connection'}
+                  <select
+                    value={overrides[selectedGlyph.id]?.[key as ModifierKey] ??
+                      selectedGlyph.modifiers[key as ModifierKey] ??
+                      'auto'}
+                    onchange={(e) =>
+                      override(key as ModifierKey, e.currentTarget.value)}
+                  >
+                    <option value="auto">Automatic</option>
+                    <option
+                      value={key === 'variant'
+                        ? 'alt'
+                        : key === 'swash'
+                          ? 'word'
+                          : 'on'}
+                      >{key === 'variant'
+                        ? 'Contextual connection'
+                        : 'On'}</option
+                    >
+                    <option value={key === 'variant' ? 'base' : 'off'}
+                      >{key === 'variant' ? 'Detached' : 'Off'}</option
+                    >
+                  </select>
+                </label>
+              {/each}
+            {/if}
+            {#if style === 'celeste'}
+              {#each ['initial', 'ornament', ...(ast.words[selectedGlyph.word]?.glyphs[0]?.id === selectedGlyph.id ? ['swash'] : [])] as key (key)}
+                <label
+                  >{key === 'initial'
+                    ? 'Decorated initial'
+                    : key === 'ornament'
+                      ? 'Stars / details'
+                      : 'Word underline'}<select
+                    value={overrides[selectedGlyph.id]?.[key as ModifierKey] ??
+                      selectedGlyph.modifiers[key as ModifierKey] ??
+                      'auto'}
+                    onchange={(e) =>
+                      override(key as ModifierKey, e.currentTarget.value)}
+                    ><option value="auto">Automatic</option><option
+                      value={key === 'swash' ? 'word' : 'on'}>On</option
+                    ><option value="off">Off</option></select
+                  ></label
+                >
+              {/each}
+            {/if}
+            {#if style === 'venator'}
+              {#if selectedGlyph.char === 'V'}<label
+                  >V initial<select
+                    value={overrides[selectedGlyph.id]?.initial ??
+                      selectedGlyph.modifiers.initial ??
+                      'auto'}
+                    onchange={(e) => override('initial', e.currentTarget.value)}
+                    ><option value="auto">Automatic</option><option value="on"
+                      >On</option
+                    ><option value="off">Off</option></select
+                  ></label
+                >{/if}
+              {#if selectedGlyph.id === 0}<label
+                  >Diamonds<select
+                    value={overrides[selectedGlyph.id]?.ornament ??
+                      selectedGlyph.modifiers.ornament ??
+                      'auto'}
+                    onchange={(e) =>
+                      override('ornament', e.currentTarget.value)}
+                    ><option value="auto">Automatic</option><option value="on"
+                      >On</option
+                    ><option value="off">Off</option></select
+                  ></label
+                >{/if}
+            {/if}
+            {#if style === 'solomon'}
+              {#each ['plate', 'rook'] as key (key)}
+                <label
+                  >{key === 'plate' ? 'Plate' : 'Rook'}<select
+                    value={overrides[selectedGlyph.id]?.[key as ModifierKey] ??
+                      selectedGlyph.modifiers[key as ModifierKey] ??
+                      'auto'}
+                    onchange={(e) =>
+                      override(key as ModifierKey, e.currentTarget.value)}
+                    ><option value="auto">Automatic</option><option value="on"
+                      >On</option
+                    ><option value="off">Off</option></select
+                  ></label
+                >
+              {/each}
+            {/if}
+            {#if (style !== 'solomon' && style !== 'venator' && style !== 'celeste' && style !== 'violet' && style !== 'graves') || (style === 'solomon' && selectedGlyph.char === 'O') || (style === 'venator' && (selectedGlyph.char === 'V' || (/^[A-Z]$/.test(selectedGlyph.char) && !'ENATOR'.includes(selectedGlyph.char))))}
+              <label
+                >Letter variant<select
+                  value={overrides[selectedGlyph.id]?.variant ??
+                    selectedGlyph.modifiers.variant ??
+                    'auto'}
+                  onchange={(e) => override('variant', e.currentTarget.value)}
+                  ><option value="auto">Automatic</option><option value="base"
+                    >Base</option
+                  ><option value="alt">Alternate</option></select
+                ></label
+              >
+            {/if}
             <button
               class="text-button"
               onclick={() => {
@@ -377,7 +620,7 @@
       {:else}
         <div class="try-strip">
           <span>TRY A NAME</span
-          >{#each style === 'rat' ? examples : style === 'harrow' ? ['NURSE HARROW', 'SISTER RAVEN', 'NIGHT WATCH'] : ['BABA', 'BLACK BIRD', 'BONE'] as ex (ex)}<button
+          >{#each style === 'rat' ? examples : style === 'harrow' ? ['NURSE HARROW', 'SISTER RAVEN', 'NIGHT WATCH'] : style === 'graves' ? ['GRAVES', 'GRAVEYARD', 'IRON WITCH'] : style === 'violet' ? ['VIOLET', 'VIVID', 'PAINT THE NIGHT'] : style === 'celeste' ? ['CELESTE', 'STAR LIGHT', 'MOON'] : style === 'venator' ? ['VENATOR', 'VIVID', 'NIGHT SHIFT'] : style === 'solomon' ? ['SOLOMON', 'IRON WITCH', 'RED MOON'] : ['BABA', 'BLACK BIRD', 'BONE'] as ex (ex)}<button
               onclick={() => {
                 source = ex;
                 overrides = {};
@@ -399,6 +642,17 @@
           </p>{:else if !result.empty}<p class="fidelity">
             All letters in this name use reference-derived outlines.
           </p>{/if}
+        {#if style === 'graves'}<p class="fidelity">
+            G, R, A, V, E, S retain visible reference fragments and their
+            first-occurrence fractures. Intact bridges, shared boundaries,
+            spacing, repeat patterns and all other glyphs are reconstructed or
+            inferred.
+          </p>{/if}
+        {#if style === 'violet'}<p class="fidelity">
+            V and lowercase i, o, l, e, t retain visible reference contours.
+            Shoulder cuts, contextual joins and spacing are reconstructed; other
+            forms are inferred.
+          </p>{/if}
       </div>
       <button
         class="advanced-button"
@@ -415,9 +669,13 @@
             >. Local settings take priority over global toggles.
           </p>
           <p>
-            <code>variant=base|alt|auto</code> ·
+            <code>fracture=on|off|auto</code> (Graves) ·
+            <code>variant=base|alt|auto</code>
+            ·
             <code>swash=word|off|auto</code>
             · <code>dot=crown|star|off|auto</code>
+            · <code>initial=on|off|auto</code>
+            · <code>plate=on|off|auto</code> · <code>rook=on|off|auto</code>
           </p>
           <pre>{JSON.stringify(
               {

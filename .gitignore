@@ -9,3 +9,9 @@ dist/
 !.env.example
 
 .svelte-check/
+
+# Local generated image
+/ChatGPT Image Oct 4, 2026, 02_20_21 PM.png
+
+# Local verification notes and artifacts
+/docs/verification/

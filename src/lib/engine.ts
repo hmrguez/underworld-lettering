@@ -5,7 +5,20 @@ import type {
   NameAST,
   Overrides,
 } from './parser.ts';
-export type StyleId = 'rat' | 'harrow' | 'baba';
+export type StyleId =
+  | 'rat'
+  | 'harrow'
+  | 'baba'
+  | 'solomon'
+  | 'venator'
+  | 'celeste'
+  | 'violet'
+  | 'graves';
+import { renderGraves } from './graves.ts';
+import { renderViolet } from './violet.ts';
+import { renderCeleste } from './celeste.ts';
+import { renderVenator } from './venator.ts';
+import { renderSolomon } from './solomon.ts';
 export interface Style {
   id: StyleId;
   name: string;
@@ -41,7 +54,15 @@ interface LayoutItem {
 }
 export interface RenderOptions {
   style: StyleId;
+  fractures: boolean;
+  fractureIntensity: number;
   crown: boolean;
+  initial: boolean;
+  diamonds: boolean;
+  inscription: boolean;
+  plates: boolean;
+  platePhase: 'odd' | 'even';
+  rook: boolean;
   swash: boolean;
   ornaments: boolean;
   texture: boolean;
@@ -102,6 +123,46 @@ export const styles: Style[] = [
     number: '03',
     description: 'Folk ornaments · patterned slabs',
     accent: '#95a25a',
+  },
+  {
+    id: 'solomon',
+    name: 'Solomon',
+    sample: 'SOLOMON',
+    number: '04',
+    description: 'Narrow serifs · chessboard plates',
+    accent: '#b7a36e',
+  },
+  {
+    id: 'venator',
+    name: 'Venator',
+    sample: 'VENATOR',
+    number: '05',
+    description: 'Broken blackletter · hooked V initial',
+    accent: '#b39ebd',
+  },
+  {
+    id: 'celeste',
+    name: 'Celeste',
+    sample: 'CELESTE',
+    number: '06',
+    description: 'Decorated initial · double ribbon underline',
+    accent: '#b59ac7',
+  },
+  {
+    id: 'violet',
+    name: 'Violet',
+    sample: 'VIOLET',
+    number: '07',
+    description: 'Slanted brush script · connected lowercase',
+    accent: '#a685d5',
+  },
+  {
+    id: 'graves',
+    name: 'Graves',
+    sample: 'GRAVES',
+    number: '08',
+    description: 'Heavy broken serifs · fitted fractures',
+    accent: '#c9d751',
   },
 ];
 function sourceGlyph(
@@ -213,7 +274,7 @@ function sourceGlyph(
     ];
     return { p, advance: p.advance, x: p.x, y: 310, scale: 1, original: false };
   }
-  const p = (fallback as Record<StyleId, Record<string, Outline>>)[style][ch];
+  const p = (fallback as Record<string, Record<string, Outline>>)[style]?.[ch];
   if (!p) return null;
   const capHeight =
     style === 'rat' ? 490 : style === 'harrow' ? (row ? 574 : 460) : 127;
@@ -258,7 +319,15 @@ export function render(
 ): RenderResult {
   const o: RenderOptions = {
     style: 'rat',
+    fractures: true,
+    fractureIntensity: 1,
     crown: true,
+    initial: true,
+    diamonds: true,
+    inscription: false,
+    plates: true,
+    platePhase: 'even',
+    rook: true,
     swash: true,
     ornaments: true,
     texture: true,
@@ -277,6 +346,11 @@ export function render(
     hash = Math.imul(hash ^ ch.charCodeAt(0), 16777619) >>> 0;
   }
   const namespace = `lettering-${hash.toString(16)}`;
+  if (o.style === 'graves') return renderGraves(ast, o, namespace, color);
+  if (o.style === 'violet') return renderViolet(ast, o, namespace, color);
+  if (o.style === 'celeste') return renderCeleste(ast, o, namespace, color);
+  if (o.style === 'venator') return renderVenator(ast, o, color);
+  if (o.style === 'solomon') return renderSolomon(ast, o, namespace, color);
   let defs = '',
     body = '';
   const applied: AppliedRule[] = [],

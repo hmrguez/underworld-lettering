@@ -1,8 +1,12 @@
 export interface ModifierValues {
+  fracture: 'auto' | 'on' | 'off';
   swash: 'auto' | 'word' | 'off';
   dot: 'auto' | 'crown' | 'star' | 'off';
   variant: 'auto' | 'base' | 'alt';
   ornament: 'auto' | 'on' | 'off';
+  plate: 'auto' | 'on' | 'off';
+  rook: 'auto' | 'on' | 'off';
+  initial: 'auto' | 'on' | 'off';
 }
 export type ModifierKey = keyof ModifierValues;
 export type Modifiers = Partial<ModifierValues>;
@@ -48,10 +52,14 @@ function applyModifier<K extends ModifierKey>(
   return true;
 }
 export const MODIFIERS = {
+  fracture: ['auto', 'on', 'off'],
   swash: ['auto', 'word', 'off'],
   dot: ['auto', 'crown', 'star', 'off'],
   variant: ['auto', 'base', 'alt'],
   ornament: ['auto', 'on', 'off'],
+  plate: ['auto', 'on', 'off'],
+  rook: ['auto', 'on', 'off'],
+  initial: ['auto', 'on', 'off'],
 } as const;
 export function lex(source: string) {
   const tokens: Token[] = [];

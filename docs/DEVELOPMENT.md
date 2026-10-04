@@ -87,3 +87,33 @@ The remote is `https://github.com/hmrguez/underworld-lettering.git`, branch `mai
 The previous push permission covered the README screenshot fix. This handoff does not grant standing permission to push unrelated future changes.
 
 No broad project license was chosen. Keep the README's third-party attribution and the SIL Open Font License texts in `public/references/`. Request a licensing decision if the user asks to apply a license to the repository.
+
+## Solomon (2026-10-04)
+
+The current verified preview serves this Personal checkout at `http://127.0.0.1:5182/`, started here with `bun run dev -- --port 5182 --strictPort`. Port 5174 was occupied, so a new port was used. Do not assume either older preview serves this checkout.
+
+Run `python3 scripts/extract-solomon.py` to reproduce `src/lib/solomon-paths.json` from the bundled vector reference. Python's standard library is sufficient; the app still runs on Svelte/Vite/Bun and needs no Python at runtime. See [VISUAL-VERIFICATION.md](VISUAL-VERIFICATION.md) for the complete regression names, parity/rook checks, source-content verification and independent export results.
+
+## Venator (2026-10-04)
+
+The Venator verification preview was launched from this Personal repository on **5184**, with `bun run dev -- --port 5184 --strictPort`; process cwd was verified with `lsof`. Older preview servers were left intact. Run `python3 scripts/extract-venator.py` from the root to reproduce source contours, inferred outlines and ink profiles. The script uses Python's standard library and the existing Solomon bounds utility without running Solomon extraction.
+
+Venator behavior tests live in `tests/venator.test.ts`. Check the contextual V against compact/base/forced-alternate V, the inferred alphabet and numerals, repeated stems and wide letters, independent diamonds/inscription, first-letter ornament overrides, and separate downloads. Reference inspection, fidelity limits and visual evidence are recorded in [VISUAL-VERIFICATION.md](VISUAL-VERIFICATION.md).
+
+## Celeste (2026-10-04)
+
+Preview **5186** serves this Personal checkout; `lsof -a -p 61905 -d cwd` verified the Vite process directory. Run `python3 scripts/extract-celeste.py` to reproduce the static geometry (Python standard library, with the existing Solomon extrema utility). No extraction dependency runs in the app.
+
+`tests/celeste.test.ts` covers first-name initials, alternative/forced initials, interface/inline/global precedence including `auto`, independent ornaments and underlines, word-level suppression, control-hull bounds at ±1000 tracking and 0.4/1/2 reach, deterministic masks and export-safe outlines. Follow the Celeste additions in [VISUAL-VERIFICATION.md](VISUAL-VERIFICATION.md) for contact sheets and actual standalone downloads. The new README close-up is 610 × 365 and was rendered from the editor download, then inspected directly; earlier screenshots were preserved.
+
+## Violet (2026-10-04)
+
+Preview **5267** was launched from this Personal checkout with `--strictPort`; `lsof -a -p 65341 -d cwd` confirmed the directory. Older previews were preserved. Run `python3 scripts/extract-violet.py` to reproduce the static geometry from `public/references/violet-wordmark.svg`. The script reuses the existing cubic-extrema utility and requires only standard Python; no runtime font or extraction dependency was added.
+
+`tests/violet.test.ts` covers word shaping, normalized IDs/offsets, source/inferred disclosures, native and inferred-capital joins, punctuation/digit/word boundaries, pair-specific paths, detached forms, spacing/disengagement, initial/extension/wear precedence including `auto`, malformed/empty input, determinism and safe SVG output. See [VISUAL-VERIFICATION.md](VISUAL-VERIFICATION.md) for artwork analysis, contact sheets, browser selection/override checks and actual independent exports. The new README close-up is 610 × 365; all earlier images remain intact.
+
+## Graves (2026-10-04)
+
+Preview **5278** serves this Personal checkout; `lsof -a -p 69162 -d cwd` verified the Vite process directory. Existing previews were preserved. Run `python3 scripts/extract-graves.py` to reproduce the static source fragments, reconstructed intact envelopes, inferred glyphs and fitted cut paths (standard Python plus the existing Solomon bounds helper; no runtime dependency).
+
+`tests/graves.test.ts` covers source disclosure, stable pattern selection, occurrence variation, override precedence including explicit automatic, transparent masks, unique definitions/reference resolution, bounded cut widths and finite viewBoxes at extreme tracking/intensity. Run all four standard checks. See [VISUAL-VERIFICATION.md](VISUAL-VERIFICATION.md) for the complete style regression, actual editor downloads and transparent alpha checks. The added README close-up is an inspected **610 × 240** raster of the actual preset download; prior screenshots are preserved.

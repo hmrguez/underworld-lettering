@@ -67,6 +67,8 @@ test('different inline specimens cannot share clipping or texture definitions', 
     render(parse('RAT KING'), { texture: true }),
     render(parse('NURSE HARROW'), { style: 'harrow' }),
     render(parse('NIGHT SHIFT'), { style: 'harrow' }),
+    render(parse('SOLOMON'), { style: 'solomon' }),
+    render(parse('SOLOMON'), { style: 'solomon', platePhase: 'odd' }),
   ];
   const ids = specimens.flatMap((s) =>
     [...s.svg.matchAll(/ id="([^"]+)"/g)].map((m) => m[1]),
@@ -164,5 +166,119 @@ test('an explicit Baba I dot replaces the shared crown while preserving side orn
   assert.ok(specimen.applied.some((r) => r.label === 'Folk side ornaments'));
   assert.ok(
     !specimen.applied.some((r) => r.label === 'Folk crown + side ornaments'),
+  );
+});
+
+const solomon = (source: string, options: Parameters<typeof render>[1] = {}) =>
+  render(parse(source), { style: 'solomon', texture: false, ...options });
+const plateIds = (r: ReturnType<typeof render>) =>
+  [...r.svg.matchAll(/data-plate="(\d+)"/g)].map((m) => Number(m[1]));
+const rookIds = (r: ReturnType<typeof render>) =>
+  [...r.svg.matchAll(/data-rook="(\d+)"/g)].map((m) => Number(m[1]));
+
+test('Solomon plates restart parity at each word, counting glyphs rather than source offsets', () => {
+  assert.deepEqual(plateIds(solomon('SOLOMON')), [1, 3, 5]);
+  assert.deepEqual(
+    plateIds(solomon('SOLOMON', { platePhase: 'odd' })),
+    [0, 2, 4, 6],
+  );
+  assert.deepEqual(plateIds(solomon('A[rook=off]BB\nABBA')), [1, 4, 6]);
+  assert.deepEqual(
+    plateIds(solomon('ABB ABBA', { platePhase: 'odd' })),
+    [0, 2, 3, 5],
+  );
+  assert.deepEqual(plateIds(solomon("A-' A-'")), [1, 4]);
+});
+
+test('Solomon plate overrides preserve interface > inline > global, including explicit auto', () => {
+  assert.deepEqual(plateIds(solomon('S[plate=on]O[plate=off]L')), [0]);
+  assert.deepEqual(
+    plateIds(
+      solomon('S[plate=on]O[plate=off]L', {
+        plates: false,
+        overrides: { 0: { plate: 'off' }, 1: { plate: 'on' } },
+      }),
+    ),
+    [1],
+  );
+  assert.deepEqual(
+    plateIds(
+      solomon('S[plate=on]O[plate=off]', {
+        overrides: { 0: { plate: 'auto' }, 1: { plate: 'auto' } },
+      }),
+    ),
+    [1],
+  );
+  assert.deepEqual(plateIds(solomon('SOL[plate=on]', { plates: false })), [2]);
+  assert.ok(parse('S[plate=maybe,rook=king]').errors.length);
+});
+
+test('Solomon rook placement is independent of parity and works on any letter', () => {
+  assert.deepEqual(rookIds(solomon('SOLOMON')), [2]);
+  assert.deepEqual(
+    rookIds(solomon('SOLOMON', { plates: false, platePhase: 'odd' })),
+    [2],
+  );
+  assert.deepEqual(rookIds(solomon('ABBA LLL')), [1, 4]);
+  assert.deepEqual(
+    rookIds(solomon('S[rook=on]OL[rook=off]', { rook: false })),
+    [0],
+  );
+  assert.deepEqual(
+    rookIds(
+      solomon('S[rook=on]OL[rook=off]', {
+        overrides: { 0: { rook: 'off' }, 2: { rook: 'on' } },
+      }),
+    ),
+    [2],
+  );
+  assert.deepEqual(rookIds(solomon('SOLOMON', { rook: false })), []);
+});
+
+test('Solomon geometry is deterministic, bounded at extreme spacing and export-safe', () => {
+  for (const tracking of [-1000, -35, 0, 60, 1000]) {
+    const r = solomon('W[plate=on,rook=on] III OOO MW', {
+      tracking,
+      platePhase: 'odd',
+    });
+    assert.equal(
+      r.svg,
+      solomon('W[plate=on,rook=on] III OOO MW', { tracking, platePhase: 'odd' })
+        .svg,
+    );
+    assert.ok(!/NaN|Infinity|<text|<image|<use|font-family|href=/.test(r.svg));
+    assert.ok(r.width > 0 && r.height > 0);
+    const [x, y, w, h] = r.svg
+      .match(/viewBox="([^"]+)"/)![1]
+      .split(' ')
+      .map(Number);
+    for (const hit of r.hits) assert.ok(hit.x >= x && hit.x + hit.w <= x + w);
+    // Every plate corner fits within the final viewport (including a wide W).
+    for (const match of r.svg.matchAll(
+      /data-plate="\d+" d="M([-\d.]+) ([-\d.]+)L([-\d.]+) ([-\d.]+)V([-\d.]+)L([-\d.]+) ([-\d.]+)Z/g,
+    )) {
+      const v = match.slice(1).map(Number);
+      assert.ok(v[0] >= x && v[2] <= x + w);
+      for (const py of [v[1], v[3], v[4], v[6]])
+        assert.ok(py >= y && py <= y + h);
+    }
+    const ownIds = new Set(
+      [...r.svg.matchAll(/ id="([^"]+)"/g)].map((m) => m[1]),
+    );
+    for (const m of r.svg.matchAll(/url\(#([^)]*)\)/g))
+      assert.ok(ownIds.has(m[1]));
+    assert.ok(r.svg.includes('mask-type:luminance'));
+    assert.ok(!r.svg.includes('#20221c'));
+  }
+  assert.deepEqual(solomon('SOLOMON').inferred, []);
+  assert.deepEqual(solomon('RAVEN').inferred, ['R', 'A', 'V', 'E']);
+  assert.ok(solomon('0123456789').hits.length === 10);
+  assert.ok(solomon('').empty);
+  assert.ok(
+    !solomon('SOLOMON', { color: '"/><script>' }).svg.includes('<script>'),
+  );
+  assert.notEqual(
+    solomon('SOLOMON').svg,
+    solomon('SOLOMON', { platePhase: 'odd' }).svg,
   );
 });
