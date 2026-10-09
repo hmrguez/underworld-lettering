@@ -815,7 +815,13 @@
   </main>
   <footer>
     <span>UNDERWORLD <span>/</span> AN EXPERIMENT IN LETTERING</span><span
-      >Reference art: Valve · <a
+      ><a
+        href="https://github.com/hmrguez/underworld-lettering"
+        target="_blank"
+        rel="noreferrer">GitHub ↗</a
+      >
+      · Reference art: Valve ·
+      <a
         href="https://www.playdeadlock.com/cityneversleeps"
         target="_blank"
         rel="noreferrer">Deadlock ↗</a

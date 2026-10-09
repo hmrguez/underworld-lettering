@@ -1,3 +1,5 @@
+[Open the lettering editor](https://hmrguez.github.io/underworld-lettering/)
+
 # Underworld Lettering
 
 _Deadlock_ is by far my favorite game of the decade for its unique and distinctive art direction, which inspired me to create this project.
